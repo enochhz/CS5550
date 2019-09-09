@@ -1,4 +1,5 @@
 import img_processor
+import numpy
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image
@@ -37,10 +38,16 @@ class Window(Frame):
     save_image_button = ""
 
     # image frame items
-    image_label, img_path, img, img_info = "", "../static/empty_image.png", "", ""
+    image_label, img_path = "", "../static/lena512.pbm"
+    ori_img = Image.open(img_path)
+    display_img, img_info = "", ""
     img_array = ""
-    img_width, img_height = "", ""
+    img_width, img_height = ori_img.size
     modified_img = ""
+
+    # image attribute
+    img_array = imread(img_path)
+    new_width, new_height = ori_img.size
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -52,17 +59,17 @@ class Window(Frame):
         # Build tools frame
         self.tools_frame = Frame(self, highlightbackground="gray", highlightthickness=1)
         self.tools_frame.pack(padx=10, pady=10)
-        self.tools_frame.place(x=0, y=0, height=200)
+        self.tools_frame.place(x=0, y=0, height=100)
         self.configure_tools_frame(self.tools_frame)
         # Build header frame
         self.header_frame = Frame(self)
         self.header_frame.pack(padx=10, pady=10)
-        self.header_frame.place(x=0, y=200, height=50)
+        self.header_frame.place(x=0, y=100, height=100)
         self.configure_header_frame()
         # Build image frame
         self.image_frame = Frame(self)
         self.image_frame.pack(padx=10, pady=10)
-        self.image_frame.place(x=0, y=250)
+        self.image_frame.place(x=0, y=200)
         self.initialize_image_frame()
     
     '''
@@ -79,10 +86,10 @@ class Window(Frame):
         self.add_gray_level_controller(self.gray_level_frame)
         self.gray_level_frame.pack(pady=5)
 
-        # Build the frame for zooming and shrinking
-        self.zoom_shrink_frame = Frame(tools_frame)
-        self.build_zoom_shrink_frame(self.zoom_shrink_frame)
-        self.zoom_shrink_frame.pack(padx=5, pady=5)
+        # # Build the frame for zooming and shrinking
+        # self.zoom_shrink_frame = Frame(tools_frame)
+        # self.build_zoom_shrink_frame(self.zoom_shrink_frame)
+        # self.zoom_shrink_frame.pack(padx=5, pady=5)
 
     '''
     Build resize tool
@@ -104,18 +111,22 @@ class Window(Frame):
 
     def resize_image(self):
         algorithm = self.zooming_algorithms_list[self.zooming_algorithm.get()]
-        width = int(self.width_input.get('1.0', END))
-        height = int(self.height_input.get('1.0', END))
-        # Get chosen algorithm and resize the opend image
+        self.new_width = int(self.width_input.get('1.0', END))
+        self.new_height = int(self.height_input.get('1.0', END))
+        # Get chosen algorithms and update the image
+        new_img = self.get_new_size_img(algorithm, self.new_width, self.new_height)
+        self.update_image(new_img) 
+        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0) 
+     
+    def get_new_size_img(self, algorithm, width, height):
         if algorithm == 'P':
-            self.update_image(Image.open(self.img_path).resize((width, height)))
+            return Image.open(self.img_path).resize((width, height))
         elif algorithm == 'N':
             new_img_array = img_processor.nearestNeighbor(self.img_array, width, height)
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            return Image.fromarray(new_img_array.astype('uint8'))
         elif algorithm == 'BL':
             new_img_array = img_processor.bilinear(self.img_array, width, height)
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
-        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
+            return Image.fromarray(new_img_array.astype('uint8'))
 
     '''
     Build gray level controller
@@ -130,10 +141,8 @@ class Window(Frame):
         self.gray_level_button.pack(side=LEFT)
     
     def change_gray_level(self):
-        new_gray_level = self.gray_level.get()
-        new_img_array = img_processor.convertGrayLevel(self.img_array, 8, int(new_gray_level))
-        self.modified_img = Image.fromarray(new_img_array)
-        self.update_image(self.modified_img)
+        self.update_image(self.get_new_size_img('P', self.new_width, self.new_height))
+        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
 
     '''
     Build zoom and shrink tool
@@ -145,13 +154,12 @@ class Window(Frame):
         self.zoom_shrink_scale.pack()
     
     def activate_zoom_shrink(self, value):
-        new_width = int(float(self.img_width) * float(value))
-        new_height = int(float(self.img_height) * float(value))
+        new_width = int(float(self.new_width) * float(value))
+        new_height = int(float(self.new_height) * float(value))
         self.modfied_img = self.modified_img.resize((new_width, new_height))
-        # self.modfied_img = Image.open(self.img_path).resize((new_width, new_height))
-        self.img = ImageTk.PhotoImage(self.modfied_img)
+        self.display_img = ImageTk.PhotoImage(self.modfied_img)
         # Update image information
-        self.image_label.configure(image=self.img)
+        self.image_label.configure(image=self.display_img)
         self.img_info.configure(text=f"{new_width} x {new_height}")
 
     '''
@@ -165,6 +173,10 @@ class Window(Frame):
         self.image_name_input.pack(side=LEFT)
         self.save_image_button = Button(self.header_frame, height=1, text='Save the image', command=self.save_image)
         self.save_image_button.pack(padx=5, side=LEFT)
+        # Build the frame for zooming and shrinking
+        self.zoom_shrink_frame = Frame(self.header_frame)
+        self.build_zoom_shrink_frame(self.zoom_shrink_frame)
+        self.zoom_shrink_frame.pack(padx=5, pady=5)
 
     def open_image(self):
         # choose an new image path
@@ -173,6 +185,14 @@ class Window(Frame):
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
         self.update_image(Image.open(self.img_path))
+        self.ori_img = Image.open(self.img_path)
+        self.img_array = imread(self.img_path)
+        self.new_width, self.new_height = self.ori_img.size
+        # self.width_input.delete(0, END)
+        # self.width_input.insert(0, self.new_width)
+        # self.height_input.delete(0, END)
+        # self.height_input.insert(0, self.new_height)
+        self.gray_level.set("8")
         self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
 
     def save_image(self):
@@ -184,21 +204,25 @@ class Window(Frame):
     Bulid Image Frame
     '''
     def initialize_image_frame(self):
+        # Image Info
         self.img_info = Label(self.image_frame)
         self.img_info.pack()
+        # Image Displaying Label
         self.image_label = Label(self.image_frame)
         self.image_label.pack()
         self.update_image(Image.open(self.img_path))
     
     def update_image(self, img):
+        gray_level = self.gray_level.get()
         self.modified_img = img
-        self.img_array = imread(self.img_path)
-        self.img_width, self.img_height = img.size
+        new_array = numpy.array(img)
+        new_img_array = img_processor.convertGrayLevel(new_array, 8, int(gray_level))
+        self.modified_img = Image.fromarray(new_img_array)
         # Update the resolution label
-        self.img_info.configure(text=f"{self.img_width} x {self.img_height}")
+        self.img_info.configure(text=f"{self.new_width} x {self.new_height}")
         # Updae the image
-        self.img = ImageTk.PhotoImage(img)
-        self.image_label.configure(image=self.img)
+        self.display_img = ImageTk.PhotoImage(self.modified_img)
+        self.image_label.configure(image=self.display_img)
 
 def main():
     root = Tk()

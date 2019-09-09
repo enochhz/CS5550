@@ -14,7 +14,7 @@ def nearestNeighbor(img_array, w2, h2):
             px = math.floor(j * x_ratio)
             py = math.floor(i * y_ratio)
             new_array[(i * w2) + j] = one_dimension_img_array[int((py * w1) + px)]
-    return new_array.reshape(w2, h2)
+    return new_array.reshape(h2, w2)
 
 def bilinear(img_array, w2, h2):
     one_dimension_img_array = img_array.flatten()
@@ -41,7 +41,7 @@ def bilinear(img_array, w2, h2):
                       + D * (x_diff * y_diff))
             new_array[offset] = gray
             offset += 1
-    return new_array.reshape(w2, h2)
+    return new_array.reshape(h2, w2)
 
 def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
     ori_pixel_range = 2 ** ori_gray_level
