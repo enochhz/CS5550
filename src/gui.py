@@ -1,7 +1,8 @@
+import img_processor
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image
-import img_processor
+from skimage.io import imread
 
 global_width, global_height = 800, 1000
 
@@ -18,6 +19,7 @@ class Window(Frame):
     zoom_shrink_scale = ""
 
     gray_level_frame = ""
+    gray_level = ""
     gray_level_input, gray_level_button = "", ""
 
     # header frame items
@@ -27,6 +29,7 @@ class Window(Frame):
 
     # image frame items
     image_label, img_path, img, img_info = "", "../static/empty_image.png", "", ""
+    img_array = ""
     img_width, img_height = "", ""
     modified_img = ""
 
@@ -57,35 +60,21 @@ class Window(Frame):
     Bulid Tools Frame
     '''
     def configure_tools_frame(self, tools_frame):
-        # Build the gray level frame with labels and button
-        self.gray_level_frame = Frame(tools_frame)
-        self.add_gray_level_controller(self.gray_level_frame)
-        self.gray_level_frame.pack(pady=5)
-
         # Build the resize frame with labels and button
         self.resize_frame = Frame(tools_frame)
         self.add_resize_tool(self.resize_frame)
         self.resize_frame.pack(pady=5)
+
+        # Build the gray level frame with labels and button
+        self.gray_level_frame = Frame(tools_frame)
+        self.add_gray_level_controller(self.gray_level_frame)
+        self.gray_level_frame.pack(pady=5)
 
         # Build the frame for zooming and shrinking
         self.zoom_shrink_frame = Frame(tools_frame)
         self.build_zoom_shrink_frame(self.zoom_shrink_frame)
         self.zoom_shrink_frame.pack(padx=5, pady=5)
 
-    '''
-    Build gray level controller
-    '''
-    def add_gray_level_controller(self, gray_level_frame):
-        gray_level_label = Label(gray_level_frame, text="Gray Level").pack(side=LEFT)
-        self.gray_level_input = Text(gray_level_frame, width=2, height=1, highlightbackground='black', highlightthickness=1)
-        self.gray_level_input.pack(side=LEFT)
-        self.gray_level_button = Button(gray_level_frame, text="Change gray level", command=self.change_gray_level)
-        self.gray_level_button.pack(side=LEFT)
-    
-    def change_gray_level(self):
-        new_gray_level = self.gray_level_input.get('1.0', END)
-        print(new_gray_level)
-    
     '''
     Build resize tool
     '''
@@ -108,6 +97,28 @@ class Window(Frame):
         # Update image information
         self.image_label.configure(image=self.img)
         self.img_info.configure(text=f"{width} x {height}")
+
+    '''
+    Build gray level controller
+    '''
+    def add_gray_level_controller(self, gray_level_frame):
+        gray_level_label = Label(gray_level_frame, text="Bits").pack(side=LEFT)
+        # self.gray_level_input = Text(gray_level_frame, width=2, height=1, highlightbackground='black', highlightthickness=1)
+        # self.gray_level_input.pack(side=LEFT)
+        self.gray_level = StringVar(gray_level_frame)
+        self.gray_level_input = OptionMenu(gray_level_frame, self.gray_level, "1", "2", "3", "4", "5", "6", "7", "8")
+        self.gray_level_input.pack(side=LEFT)
+        self.gray_level_button = Button(gray_level_frame, text="Change gray level", command=self.change_gray_level)
+        self.gray_level_button.pack(side=LEFT)
+    
+    def change_gray_level(self):
+        # new_gray_level = self.gray_level_input.get('1.0', END)
+        new_gray_level = self.gray_level.get()
+        new_img_array = img_processor.convert_gray_level(self.img_array, 8, int(new_gray_level))
+        self.modified_img = Image.fromarray(new_img_array)
+        self.img = ImageTk.PhotoImage(self.modified_img)
+        self.image_label.configure(image=self.img)
+    
 
     '''
     Build zoom and shrink tool
@@ -146,6 +157,7 @@ class Window(Frame):
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
         # Display the new image in the frame
+        self.img_array = imread(self.img_path)
         self.modified_img = Image.open(self.img_path)
         self.img_width, self.img_height = self.modified_img.size
         self.img = ImageTk.PhotoImage(self.modified_img)
@@ -155,12 +167,12 @@ class Window(Frame):
         self.img_info.configure(text=f"{width} x {height}")
         self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
     
-    
     '''
     Bulid Image Frame
     '''
     def configure_image_frame(self):
         self.modified_img = Image.open(self.img_path)
+        self.img_array = imread(self.img_path)
         # Image Info Label
         self.img_width, self.img_height = self.modified_img.size
         self.img_info = Label(self.image_frame, text=f"{self.img_width} x {self.img_height}")

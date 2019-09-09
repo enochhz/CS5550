@@ -1,6 +1,6 @@
 import numpy as np
 
-def gray_level_convertor(img_array, ori_gray_level, new_gray_level):
+def convert_gray_level(img_array, ori_gray_level, new_gray_level):
     ori_pixel_range = 2 ** ori_gray_level
     new_pixel_range = 2 ** new_gray_level
     ratio = float(new_pixel_range) / float(ori_pixel_range)
