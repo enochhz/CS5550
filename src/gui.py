@@ -5,7 +5,7 @@ from tkinter import filedialog
 from PIL import ImageTk, Image
 from skimage.io import imread
 
-global_width, global_height = 900, 900
+global_width, global_height = 800, 800
 
 class Window(Frame):
 
