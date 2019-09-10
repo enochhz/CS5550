@@ -5,7 +5,7 @@ from tkinter import filedialog
 from PIL import ImageTk, Image
 from skimage.io import imread
 
-global_width, global_height = 800, 1000
+global_width, global_height = 900, 900
 
 class Window(Frame):
 
@@ -56,19 +56,19 @@ class Window(Frame):
 
     def add_main_frames(self):
         # Build tools frame
-        self.tools_frame = Frame(self, highlightbackground="gray", highlightthickness=1)
+        self.tools_frame = Frame(self, highlightbackground="black", highlightthickness=1)
         self.tools_frame.pack(padx=10, pady=10)
-        self.tools_frame.place(x=0, y=0, height=100)
+        self.tools_frame.place(x=0, y=0, width=global_width, height=100)
         self.configure_tools_frame(self.tools_frame)
         # Build header frame
         self.header_frame = Frame(self)
-        self.header_frame.pack(padx=10, pady=10)
-        self.header_frame.place(x=0, y=100, height=100)
+        self.header_frame.pack(padx=20, pady=20)
+        self.header_frame.place(x=0, y=100, width=global_width, height=100)
         self.configure_header_frame()
         # Build image frame
         self.image_frame = Frame(self)
         self.image_frame.pack(padx=10, pady=10)
-        self.image_frame.place(x=0, y=200)
+        self.image_frame.place(x=0, y=200, width=global_width)
         self.initialize_image_frame()
     
     '''
@@ -176,7 +176,7 @@ class Window(Frame):
         # Build the frame for zooming and shrinking
         self.zoom_shrink_frame = Frame(self.header_frame)
         self.build_zoom_shrink_frame(self.zoom_shrink_frame)
-        self.zoom_shrink_frame.pack(padx=5, pady=5)
+        self.zoom_shrink_frame.pack(padx=5, pady=5, side=RIGHT)
 
     def open_image(self):
         # choose an new image path
