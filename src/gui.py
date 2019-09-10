@@ -25,14 +25,13 @@ class Window(Frame):
     zooming_algorithm, zooming_algorithm_input = "", ""
     resize_button = ""
 
-    zoom_shrink_frame = ""
-    zoom_shrink_scale = ""
-
     gray_level_frame = ""
     gray_level = ""
     gray_level_button = "", ""
 
     # header frame items
+    zoom_shrink_frame = ""
+    zoom_shrink_scale = ""
     open_image_button = ""
     image_name_input = ""
     save_image_button = ""
@@ -86,11 +85,6 @@ class Window(Frame):
         self.add_gray_level_controller(self.gray_level_frame)
         self.gray_level_frame.pack(pady=5)
 
-        # # Build the frame for zooming and shrinking
-        # self.zoom_shrink_frame = Frame(tools_frame)
-        # self.build_zoom_shrink_frame(self.zoom_shrink_frame)
-        # self.zoom_shrink_frame.pack(padx=5, pady=5)
-
     '''
     Build resize tool
     '''
@@ -101,6 +95,12 @@ class Window(Frame):
         height_label = Label(resize_frame, text="height").pack(side=LEFT)
         self.height_input = Text(resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
         self.height_input.pack(side=LEFT)
+        # Set default values of inputs
+        self.ori_img = Image.open(self.img_path)
+        self.new_width, self.new_height = self.ori_img.size
+        self.width_input.insert(END, self.new_width)
+        self.height_input.insert(END, self.new_height)
+        # Initialize algorithms drop down menu and resize button
         self.zooming_algorithm = StringVar(resize_frame)
         self.zooming_algorithm.set("PIL Library") # default value
         algorithms = list(self.zooming_algorithms_list.keys())
@@ -184,15 +184,17 @@ class Window(Frame):
             ("pbm file", "*.pbm"), 
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
-        self.update_image(Image.open(self.img_path))
+        self.gray_level.set("8")
+        # self.update_image(Image.open(self.img_path))
         self.ori_img = Image.open(self.img_path)
         self.img_array = imread(self.img_path)
         self.new_width, self.new_height = self.ori_img.size
-        # self.width_input.delete(0, END)
-        # self.width_input.insert(0, self.new_width)
-        # self.height_input.delete(0, END)
-        # self.height_input.insert(0, self.new_height)
-        self.gray_level.set("8")
+        self.update_image(self.ori_img)
+        # Update width and heighter contoller and bits controller
+        self.width_input.delete(1.0, END)
+        self.width_input.insert(END, self.new_width)
+        self.height_input.delete(1.0, END)
+        self.height_input.insert(END, self.new_height)
         self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
 
     def save_image(self):
