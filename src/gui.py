@@ -1,11 +1,12 @@
 import img_processor
 import numpy
+import tkinter.messagebox
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image
 from skimage.io import imread
 
-global_width, global_height = 800, 800
+global_width, global_height = 780, 800
 
 class Window(Frame):
 
@@ -39,6 +40,7 @@ class Window(Frame):
     # image frame items
     image_label, img_path = "", "../static/lena512.pbm"
     ori_img = Image.open(img_path)
+    ori_photo_image = ""
     display_img, img_info = "", ""
     img_array = ""
     img_width, img_height = ori_img.size
@@ -47,6 +49,9 @@ class Window(Frame):
     # image attribute
     img_array = imread(img_path)
     new_width, new_height = ori_img.size
+
+    popup_image_window = ""
+    popup_image_label = ""
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -58,17 +63,17 @@ class Window(Frame):
         # Build tools frame
         self.tools_frame = Frame(self, highlightbackground="black", highlightthickness=1)
         self.tools_frame.pack(padx=10, pady=10)
-        self.tools_frame.place(x=0, y=0, width=global_width, height=100)
+        self.tools_frame.place(x=0, y=0, width=global_width, height=80)
         self.configure_tools_frame(self.tools_frame)
         # Build header frame
         self.header_frame = Frame(self)
         self.header_frame.pack(padx=20, pady=20)
-        self.header_frame.place(x=0, y=100, width=global_width, height=100)
+        self.header_frame.place(x=0, y=80, width=global_width, height=100)
         self.configure_header_frame()
         # Build image frame
         self.image_frame = Frame(self)
         self.image_frame.pack(padx=10, pady=10)
-        self.image_frame.place(x=0, y=200, width=global_width)
+        self.image_frame.place(x=0, y=180, width=global_width)
         self.initialize_image_frame()
     
     '''
@@ -166,13 +171,16 @@ class Window(Frame):
     Bulid Header Frame
     '''
     def configure_header_frame(self):
-        self.open_image_button = Button(self.header_frame, height=1, text='Open an image', command=self.open_image)
+        self.open_image_button = Button(self.header_frame, height=1, text='New Image', command=self.open_image)
         self.open_image_button.pack(padx=5, side=LEFT)
+        # Pop up original image
+        popup_button = Button(self.header_frame, text="Original Image", command=self.popup_original_image)
+        popup_button.pack(side=LEFT)
         # Button for saving the image
+        self.save_image_button = Button(self.header_frame, height=1, text='Save modified image', command=self.save_image)
+        self.save_image_button.pack(padx=5, side=RIGHT)
         self.image_name_input = Entry(self.header_frame, width=12, textvariable=StringVar(value='new_filename.ext'), highlightbackground='black', highlightthickness=1)
-        self.image_name_input.pack(side=LEFT)
-        self.save_image_button = Button(self.header_frame, height=1, text='Save the image', command=self.save_image)
-        self.save_image_button.pack(padx=5, side=LEFT)
+        self.image_name_input.pack(side=RIGHT)
         # Build the frame for zooming and shrinking
         self.zoom_shrink_frame = Frame(self.header_frame)
         self.build_zoom_shrink_frame(self.zoom_shrink_frame)
@@ -185,7 +193,7 @@ class Window(Frame):
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
         self.gray_level.set("8")
-        # self.update_image(Image.open(self.img_path))
+        # update the new image display
         self.ori_img = Image.open(self.img_path)
         self.img_array = imread(self.img_path)
         self.new_width, self.new_height = self.ori_img.size
@@ -196,11 +204,21 @@ class Window(Frame):
         self.height_input.delete(1.0, END)
         self.height_input.insert(END, self.new_height)
         self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
+        self.ori_photo_image = ImageTk.PhotoImage(self.ori_img)
+    
+    def popup_original_image(self): 
+        self.popup_image_window = Toplevel()
+        self.popup_image_window.wm_title(f"{self.img_path.split('/')[-1]} ({self.img_width} x {self.img_height})")
+        self.popup_image_label = Label(self.popup_image_window)
+        self.popup_image_label.pack()
+        self.popup_image_label.configure(image=self.ori_photo_image)
+        self.popup_image_label.image = self.ori_photo_image
 
     def save_image(self):
         new_file_name = self.image_name_input.get()
         self.modified_img.save("../static/new_images/" + new_file_name)
         print(f"Save new file: {new_file_name}")
+        messagebox.showinfo(title="Image Saved", message=f"You saved new image in \nnew_images/{new_file_name}")
     
     '''
     Bulid Image Frame
@@ -213,6 +231,7 @@ class Window(Frame):
         self.image_label = Label(self.image_frame)
         self.image_label.pack()
         self.update_image(Image.open(self.img_path))
+        self.ori_photo_image = ImageTk.PhotoImage(self.ori_img)
     
     def update_image(self, img):
         gray_level = self.gray_level.get()
