@@ -1,4 +1,4 @@
 .ipynb_checkpoints
-./static/new_images
-./src/dist
-./src/*
+src/static/new_images
+/src/dist
+/src/*
