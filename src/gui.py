@@ -4,7 +4,7 @@ import tkinter.messagebox
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image
-from skimage.io import imread
+# from skimage.io import imread
 
 global_width, global_height = 780, 800
 
@@ -38,7 +38,7 @@ class Window(Frame):
     save_image_button = ""
 
     # image frame items
-    image_label, img_path = "", "../static/lena512.pbm"
+    image_label, img_path = "", "./static/lena512.pbm"
     ori_img = Image.open(img_path)
     ori_photo_image = ""
     display_img, img_info = "", ""
@@ -47,7 +47,8 @@ class Window(Frame):
     modified_img = ""
 
     # image attribute
-    img_array = imread(img_path)
+    # img_array = imread(img_path)
+    img_array = numpy.array(Image.open(img_path))
     new_width, new_height = ori_img.size
 
     popup_save_window = ""
@@ -192,7 +193,7 @@ class Window(Frame):
 
     def open_image(self):
         # choose an new image path
-        self.img_path =  filedialog.askopenfilename(initialdir = "../static",title = "Select file",filetypes = (
+        self.img_path =  filedialog.askopenfilename(initialdir = "./static",title = "Select file",filetypes = (
             ("pbm file", "*.pbm"), 
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
@@ -200,7 +201,8 @@ class Window(Frame):
         # update the new image display
         self.ori_img = Image.open(self.img_path)
         self.img_width, self.img_height = self.ori_img.size
-        self.img_array = imread(self.img_path)
+        # self.img_array = imread(self.img_path)
+        self.img_array = numpy.array(Image.open(self.img_path))
         self.new_width, self.new_height = self.ori_img.size
         self.update_image(self.ori_img)
         # Update width and heighter contoller and bits controller
@@ -233,8 +235,8 @@ class Window(Frame):
     def popup_save_image(self):
         new_file_name = self.new_file_name.get()
         self.popup_save_window.destroy()
-        self.modified_img.save("../static/new_images/" + new_file_name)
-        messagebox.showinfo(title="Image Saved", message=f"You saved new image in \nnew_images/{new_file_name}")
+        self.modified_img.save("./static/new_images/" + new_file_name)
+        messagebox.showinfo(title="Image Saved", message=f"You saved new image in \nstatic/new_images/{new_file_name}")
     
     '''
     Bulid Image Frame
