@@ -132,6 +132,12 @@ class Window(Frame):
         elif algorithm == 'BL':
             new_img_array = img_processor.bilinear(self.img_array, width, height)
             return Image.fromarray(new_img_array.astype('uint8'))
+        elif algorithm == 'LX':
+            new_img_array = img_processor.linearX(self.img_array, width, height)
+            return Image.fromarray(new_img_array.astype('uint8'))
+        elif algorithm == 'LY':
+            new_img_array = img_processor.linearY(self.img_array, width, height)
+            return Image.fromarray(new_img_array.astype('uint8'))
 
     '''
     Build gray level controller
@@ -215,13 +221,14 @@ class Window(Frame):
 
     def save_image(self):
         self.popup_save_window = Toplevel()
+        self.popup_save_window.geometry('400x50')
         self.popup_save_window.wm_title("Save Image")
         file_name_label = Label(self.popup_save_window, text="New File Name: ")
-        file_name_label.pack(side=LEFT)
+        file_name_label.pack(padx=10, side=LEFT)
         self.new_file_name = Entry(self.popup_save_window, width=12, textvariable=StringVar(value='new_file.pbm'), highlightbackground='black', highlightthickness=1)
-        self.new_file_name.pack(side=LEFT)
+        self.new_file_name.pack(padx=10, side=LEFT)
         save_image_button = Button(self.popup_save_window, height=1, text='Save Image', command=self.popup_save_image)
-        save_image_button.pack(side=LEFT)
+        save_image_button.pack(padx=10, side=RIGHT)
     
     def popup_save_image(self):
         new_file_name = self.new_file_name.get()
