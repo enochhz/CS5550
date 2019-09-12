@@ -17,11 +17,11 @@ class Window(Frame):
     resize_frame = ""
     width_input, height_input  = "", ""
     zooming_algorithms_list = {
-        'PIL Library': 'P',
-        'The Nearest Neighbor': 'N',
+        'Nearest Neighbor': 'N',
         'Linear Method (x)': 'LX',
         'Linear Method (y)': 'LY',
-        'Bilinear Interpolation': 'BL'
+        'Bilinear Interpolation': 'BL',
+        'PIL Library': 'P'
     }
     zooming_algorithm, zooming_algorithm_input = "", ""
     resize_button = ""
@@ -107,7 +107,7 @@ class Window(Frame):
         self.height_input.insert(END, self.new_height)
         # Initialize algorithms drop down menu and resize button
         self.zooming_algorithm = StringVar(resize_frame)
-        self.zooming_algorithm.set("PIL Library") # default value
+        self.zooming_algorithm.set("Nearest Neighbor") # default value
         algorithms = list(self.zooming_algorithms_list.keys())
         self.zooming_algorithm_input = OptionMenu(resize_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3], algorithms[4])
         self.zooming_algorithm_input.pack(side=LEFT)
