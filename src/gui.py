@@ -161,7 +161,7 @@ class Window(Frame):
     '''
     def build_zoom_shrink_frame(self, zoom_shrink_frame):
         self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
-             length=300, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
+             length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
         self.zoom_shrink_scale.set(1)
         self.zoom_shrink_scale.pack()
     
