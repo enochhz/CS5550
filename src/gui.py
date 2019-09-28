@@ -125,9 +125,6 @@ class Window(Frame):
         save_image_button = Button(image_helper_frame, text='Save Image', command=self.save_image)
         save_image_button.pack(padx=5, side=LEFT)
         # Build the frame for zooming and shrinking
-        # self.zoom_shrink_frame = Frame(image_helper_frame)
-        # self.build_zoom_shrink_frame(self.zoom_shrink_frame)
-        # self.zoom_shrink_frame.pack(padx=5, pady=5, side=RIGHT)
         zoom_shrink_frame = Frame(image_helper_frame)
         self.build_zoom_shrink_frame(zoom_shrink_frame)
         zoom_shrink_frame.pack(padx=5, pady=5, side=RIGHT)
