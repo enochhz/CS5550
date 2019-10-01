@@ -1,3 +1,4 @@
+import os
 import numpy
 import tkinter.messagebox
 from tkinter import *
@@ -81,12 +82,13 @@ class Window(Frame):
     def initialize_functionality_frame(self, tools_frame):
         # Build the resize frame with labels and button
         resize_frame = Frame(tools_frame)
+        resize_frame.rowconfigure(0, weight=global_width)
         self.add_resize_tool(resize_frame)
         resize_frame.pack(pady=5)
 
         # Build the gray level frame with labels and button
         gray_level_frame = Frame(tools_frame)
-        self.add_gray_level_controller(gray_level_frame)
+        # self.add_gray_level_controller(gray_level_frame)
         gray_level_frame.pack(pady=5)
 
     '''
@@ -112,6 +114,15 @@ class Window(Frame):
         self.zooming_algorithm_input.pack(side=LEFT)
         resize_button = Button(resize_frame, text="Resize", command=self.resize_image)
         resize_button.pack(side=LEFT)
+
+        gray_level_label = Label(resize_frame, text="Bits").pack(side=LEFT)
+        self.gray_level = StringVar(resize_frame)
+        self.gray_level.set("8") # default value
+        self.gray_level_input = OptionMenu(resize_frame, self.gray_level, "1", "2", "3", "4", "5", "6", "7", "8")
+        self.gray_level_input.pack(side=LEFT)
+        gray_level_button = Button(resize_frame, text="Change gray level", command=self.change_gray_level)
+        gray_level_button.pack(side=RIGHT)
+
 
     '''
     Build gray level controller
@@ -246,6 +257,8 @@ class Window(Frame):
     def popup_save_image(self, popup_save_window, new_file_name_entry):
         new_file_name = new_file_name_entry.get()
         popup_save_window.destroy()
+        if not os.path.exists("./static/new_images"):
+            os.mkdir('./static/new_images')
         self.modified_img.save("./static/new_images/" + new_file_name)
         messagebox.showinfo(title="Image Saved", message=f"You saved new image in \nstatic/new_images/{new_file_name}")
     
