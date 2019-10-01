@@ -82,7 +82,6 @@ class Window(Frame):
     def initialize_functionality_frame(self, tools_frame):
         # Build the resize frame with labels and button
         resize_frame = Frame(tools_frame)
-        resize_frame.rowconfigure(0, weight=global_width)
         self.add_resize_tool(resize_frame)
         resize_frame.pack(pady=5)
 
