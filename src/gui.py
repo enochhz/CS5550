@@ -8,9 +8,10 @@ from functools import partial
 
 import img_processor
 
-global_width, global_height = 780, 800
-
 class Window(Frame):
+    global_width, global_height = 780, 700
+    functionality_frame_width, functionality_frame_height = 500, 50
+    image_frame_width, image_frame_height = 780, 700
 
     # functionality frame attributes
     width_input, height_input  = "", ""
@@ -45,29 +46,16 @@ class Window(Frame):
         self.master = master
         self.pack(fill=BOTH, expand=1)
         self.initialize_frames()
-
-    def initialize_frames(self):
-        # Initialize meanu
-        self.initialize_menu()
-        # Initialize functionality frame
-        tools_frame = Frame(self, highlightbackground="black", highlightthickness=1)
-        tools_frame.pack(padx=10, pady=10)
-        tools_frame.place(x=0, y=0, width=global_width, height=80)
-        self.initialize_functionality_frame(tools_frame)
-        # Initialize image helper frame
-        image_helper_frame = Frame(self)
-        image_helper_frame.pack(padx=20, pady=20)
-        image_helper_frame.place(x=0, y=80, width=global_width, height=100)
-        self.initialize_image_helper_frame(image_helper_frame)
-        # Initialize image frame
-        image_frame = Frame(self)
-        image_frame.pack(padx=10, pady=10)
-        image_frame.place(x=0, y=180, width=global_width)
-        self.initialize_image_frame(image_frame)
+        self.master.geometry(f"{self.functionality_frame_width + self.image_frame_width}x{self.image_frame_height}")
     
-    '''
-    Initialize menu
-    '''
+    def initialize_frames(self):
+        self.initialize_menu()
+        self.initialize_image_resize_frame(Frame(self))
+        self.initialize_gray_level_frame(Frame(self))
+        self.initialize_image_helper_frame(Frame(self))
+        self.initialize_zoom_shrink_frame(Frame(self))
+        self.initialize_image_frame(Frame(self))
+    
     def initialize_menu(self):
         menu = Menu(self)
         self.master.config(menu=menu)
@@ -76,29 +64,13 @@ class Window(Frame):
         fileMenu.add_command(label="New Image", command=self.open_image)
         fileMenu.add_command(label="Save Image", command=self.save_image) 
     
-    '''
-    Bulid Tools Frame
-    '''
-    def initialize_functionality_frame(self, tools_frame):
-        # Build the resize frame with labels and button
-        resize_frame = Frame(tools_frame)
-        self.add_resize_tool(resize_frame)
-        resize_frame.pack(pady=5)
-
-        # Build the gray level frame with labels and button
-        gray_level_frame = Frame(tools_frame)
-        # self.add_gray_level_controller(gray_level_frame)
-        gray_level_frame.pack(pady=5)
-
-    '''
-    Build resize tool
-    '''
-    def add_resize_tool(self, resize_frame):
-        width_lable = Label(resize_frame, text="width").pack(side=LEFT)
-        self.width_input = Text(resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+    def initialize_image_resize_frame(self, image_resize_frame):
+        image_resize_frame.place(x=0, y=0, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        width_label = Label(image_resize_frame, text="width").pack(side=LEFT)
+        self.width_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
         self.width_input.pack(side=LEFT)
-        height_label = Label(resize_frame, text="height").pack(side=LEFT)
-        self.height_input = Text(resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        height_label = Label(image_resize_frame, text="height").pack(side=LEFT)
+        self.height_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
         self.height_input.pack(side=LEFT)
         # Set default values of inputs
         self.ori_img = Image.open(self.img_path)
@@ -106,27 +78,16 @@ class Window(Frame):
         self.width_input.insert(END, self.new_width)
         self.height_input.insert(END, self.new_height)
         # Initialize algorithms drop down menu and resize button
-        self.zooming_algorithm = StringVar(resize_frame)
+        self.zooming_algorithm = StringVar(image_resize_frame)
         self.zooming_algorithm.set("Nearest Neighbor") # default value
         algorithms = list(self.zooming_algorithms_list.keys())
-        self.zooming_algorithm_input = OptionMenu(resize_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3], algorithms[4])
+        self.zooming_algorithm_input = OptionMenu(image_resize_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3], algorithms[4])
         self.zooming_algorithm_input.pack(side=LEFT)
-        resize_button = Button(resize_frame, text="Resize", command=self.resize_image)
+        resize_button = Button(image_resize_frame, text="Resize", command=self.resize_image)
         resize_button.pack(side=LEFT)
-
-        gray_level_label = Label(resize_frame, text="Bits").pack(side=LEFT)
-        self.gray_level = StringVar(resize_frame)
-        self.gray_level.set("8") # default value
-        self.gray_level_input = OptionMenu(resize_frame, self.gray_level, "1", "2", "3", "4", "5", "6", "7", "8")
-        self.gray_level_input.pack(side=LEFT)
-        gray_level_button = Button(resize_frame, text="Change gray level", command=self.change_gray_level)
-        gray_level_button.pack(side=RIGHT)
-
-
-    '''
-    Build gray level controller
-    '''
-    def add_gray_level_controller(self, gray_level_frame):
+    
+    def initialize_gray_level_frame(self, gray_level_frame):
+        gray_level_frame.place(x=0, y=self.functionality_frame_height, width=self.functionality_frame_width, height=self.functionality_frame_height)
         gray_level_label = Label(gray_level_frame, text="Bits").pack(side=LEFT)
         self.gray_level = StringVar(gray_level_frame)
         self.gray_level.set("8") # default value
@@ -135,36 +96,26 @@ class Window(Frame):
         gray_level_button = Button(gray_level_frame, text="Change gray level", command=self.change_gray_level)
         gray_level_button.pack(side=LEFT)
 
-    '''
-    Bulid Image Helper Frame
-    '''
     def initialize_image_helper_frame(self, image_helper_frame):
+        image_helper_frame.pack(padx=20, pady=20)
+        image_helper_frame.place(x=0, y=self.functionality_frame_height * 2, width=self.global_width, height=self.functionality_frame_height)
         # Pop up original image
         popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
         popup_button.pack(side=LEFT)
-
         # Button for histogram displaying
         display_histogram_button = Button(image_helper_frame, text='Histogram Diagram')
         display_histogram_button.pack(padx=5, side=LEFT)
 
-        # Build the frame for zooming and shrinking
-        zoom_shrink_frame = Frame(image_helper_frame)
-        self.build_zoom_shrink_frame(zoom_shrink_frame)
-        zoom_shrink_frame.pack(padx=5, pady=5, side=RIGHT)
-
-    '''
-    Build zoom and shrink tool
-    '''
-    def build_zoom_shrink_frame(self, zoom_shrink_frame):
+    def initialize_zoom_shrink_frame(self, zoom_shrink_frame):
+        zoom_shrink_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=100)
         self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
              length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
         self.zoom_shrink_scale.set(1)
-        self.zoom_shrink_scale.pack()
+        self.zoom_shrink_scale.pack(side=LEFT)
 
-    '''
-    Bulid Image Frame
-    '''
     def initialize_image_frame(self, image_frame):
+        image_frame.pack(padx=10, pady=10)
+        image_frame.place(x=self.functionality_frame_width, y=0, width=self.image_frame_width, height=self.image_frame_height)
         # Image Info
         self.img_info = Label(image_frame)
         self.img_info.pack()
@@ -277,7 +228,6 @@ def main():
     root = Tk()
     app = Window(root)
     root.wm_title("Image Processor")
-    root.geometry(f"{global_width}x{global_height}")
     root.mainloop()
 
 if __name__ == '__main__':
