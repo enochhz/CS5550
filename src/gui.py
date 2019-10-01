@@ -46,12 +46,14 @@ class Window(Frame):
         self.initialize_frames()
 
     def initialize_frames(self):
+        # Initialize meanu
+        self.initialize_menu()
         # Initialize functionality frame
         tools_frame = Frame(self, highlightbackground="black", highlightthickness=1)
         tools_frame.pack(padx=10, pady=10)
         tools_frame.place(x=0, y=0, width=global_width, height=80)
         self.initialize_functionality_frame(tools_frame)
-        # Initialize header frame
+        # Initialize image helper frame
         image_helper_frame = Frame(self)
         image_helper_frame.pack(padx=20, pady=20)
         image_helper_frame.place(x=0, y=80, width=global_width, height=100)
@@ -61,6 +63,17 @@ class Window(Frame):
         image_frame.pack(padx=10, pady=10)
         image_frame.place(x=0, y=180, width=global_width)
         self.initialize_image_frame(image_frame)
+    
+    '''
+    Initialize menu
+    '''
+    def initialize_menu(self):
+        menu = Menu(self)
+        self.master.config(menu=menu)
+        fileMenu = Menu(menu)
+        menu.add_cascade(label="File", menu=fileMenu)
+        fileMenu.add_command(label="New Image", command=self.open_image)
+        fileMenu.add_command(label="Save Image", command=self.save_image) 
     
     '''
     Bulid Tools Frame
@@ -116,14 +129,14 @@ class Window(Frame):
     Bulid Image Helper Frame
     '''
     def initialize_image_helper_frame(self, image_helper_frame):
-        open_image_button = Button(image_helper_frame, text='New Image', command=self.open_image)
-        open_image_button.pack(padx=5, side=LEFT)
         # Pop up original image
         popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
         popup_button.pack(side=LEFT)
-        # Button for saving the image
-        save_image_button = Button(image_helper_frame, text='Save Image', command=self.save_image)
-        save_image_button.pack(padx=5, side=LEFT)
+
+        # Button for histogram displaying
+        display_histogram_button = Button(image_helper_frame, text='Histogram Diagram')
+        display_histogram_button.pack(padx=5, side=LEFT)
+
         # Build the frame for zooming and shrinking
         zoom_shrink_frame = Frame(image_helper_frame)
         self.build_zoom_shrink_frame(zoom_shrink_frame)
