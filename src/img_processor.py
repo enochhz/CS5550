@@ -1,6 +1,9 @@
 import math
 import numpy as np
 
+'''
+Resizing algorithms
+'''
 def nearestNeighbor(img_matrix, w2, h2):
     w1 = len(img_matrix[0])
     h1 = len(img_matrix)
@@ -98,6 +101,9 @@ def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
             new_img_array[row][col] = int(img_array[row][col] * ratio) * (256 / (2 ** new_gray_level))
     return new_img_array
 
+'''
+Histogram equalization algorithms
+'''
 def global_histogram_equalization(img_matrix):
     intensity_count = np.zeros(256) # [0.0] * 256
     for row in range(len(img_matrix)):
@@ -149,6 +155,9 @@ def local_histogram_equalization(img_matrix, width, height):
             img_matrix[row][col] = int(cdf[ele] / (width * height) * 255.0)
     return img_matrix
 
+'''
+Spatial Filtering Algorithms
+'''
 def smoothing_filtering(img_matrix, width, height):
     mid_val = int(width * height / 2.0)
     # find the number of rows and columns to be padded with zero
@@ -252,7 +261,7 @@ def high_boosting_filtering(img_matrix, width, height, a):
     padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            sum = 0
+            sum = 0.0
             index = 0
             for x in range(height):
                 for y in range(width):
@@ -261,5 +270,13 @@ def high_boosting_filtering(img_matrix, width, height, a):
                     else:
                         sum += padding_matrix[row + x][col + y] * -1
                     index += 1
+            img_matrix[row][col] *= (a - 1.0)
             img_matrix[row][col] += int(sum / (width * height))
+    return img_matrix
+
+def bit_panel_removal(img_matrix, value):
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            if img_matrix[row][col] == value:
+                img_matrix[row][col] = 0
     return img_matrix
