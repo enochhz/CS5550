@@ -56,6 +56,7 @@ class Window(Frame):
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
+        self.initialize_bit_panel_removal_frame(Frame(self))
         self.initialize_image_frame(Frame(self))
     
     def initialize_menu(self):
@@ -152,9 +153,13 @@ class Window(Frame):
         self.new_width, self.new_height = self.ori_img.size
         self.width_input.insert(END, self.new_width)
         self.height_input.insert(END, self.new_height)
-        resize_button = Button(spatial_filtering_frame, text="Histogram Equalization")
+        resize_button = Button(spatial_filtering_frame, text="Filtering")
         resize_button.pack(side=LEFT)
 
+    def initialize_bit_panel_removal_frame(self, bit_panel_removal_frame):
+        bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        resize_button = Button(bit_panel_removal_frame, text="Bit Panel Removal")
+        resize_button.pack(side=LEFT)
 
     def initialize_image_frame(self, image_frame):
         image_frame.pack(padx=10, pady=10)
