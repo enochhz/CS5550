@@ -9,8 +9,7 @@ from functools import partial
 import img_processor
 
 class Window(Frame):
-    global_width, global_height = 780, 700
-    functionality_frame_width, functionality_frame_height = 500, 50
+    functionality_frame_width, functionality_frame_height = 450, 50
     image_frame_width, image_frame_height = 780, 700
 
     # functionality frame attributes
@@ -108,12 +107,20 @@ class Window(Frame):
         self.histogram_equalization_menu = OptionMenu(histogram_equalization_frame, self.histogram_equalization_choice, histogram_equalization_options[0], histogram_equalization_options[1])
         self.histogram_equalization_menu.pack(side=LEFT)
 
-        self.width_input = Text(histogram_equalization_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
-        self.width_input.pack(side=LEFT)
+        mask_size_input = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        mask_size_input.pack(side=LEFT)
         # Set default values of inputs
-        self.width_input.insert(END, 3)
-        resize_button = Button(histogram_equalization_frame, text="Histogram Equalization")
+        mask_size_input.insert(END, 3)
+        resize_button = Button(histogram_equalization_frame, text="Histogram Equalization", command=self.histogram_equalization)
         resize_button.pack(side=LEFT)
+    
+    def histogram_equalization(self):
+        if self.histogram_equalization_choice.get() == 'Global':
+            self.update_image(self.get_new_size_img('P', self.new_width, self.new_height))
+            new_img_array = img_processor.global_histogram_equalization(self.img_array)
+            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+        else:
+            print("Local")
 
     def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
         spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=self.functionality_frame_height)
@@ -124,10 +131,10 @@ class Window(Frame):
         self.filter_option_menu = OptionMenu(spatial_filtering_frame, self.spatial_filter_choice, filters[0], filters[1], filters[2], filters[3])
         self.filter_option_menu.pack(side=LEFT)
 
-        self.mask_size_input = Text(spatial_filtering_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
-        self.mask_size_input.pack(side=LEFT)
+        mask_size_input = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        mask_size_input.pack(side=LEFT)
         # Set default values of inputs
-        self.mask_size_input.insert(END, 3)
+        mask_size_input.insert(END, 3)
         resize_button = Button(spatial_filtering_frame, text="Filtering")
         resize_button.pack(side=LEFT)
 
@@ -145,7 +152,7 @@ class Window(Frame):
 
     def initialize_image_helper_frame(self, image_helper_frame):
         image_helper_frame.pack(padx=20, pady=20)
-        image_helper_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.global_width, height=self.functionality_frame_height)
+        image_helper_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Pop up original image
         popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
         popup_button.pack(side=LEFT)

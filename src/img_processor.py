@@ -97,3 +97,19 @@ def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
         for col in range(len(img_array[row])):
             new_img_array[row][col] = int(img_array[row][col] * ratio) * (256 / (2 ** new_gray_level))
     return new_img_array
+
+def global_histogram_equalization(img_matrix):
+    intensity_count = [0.0] * 256
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[row])):
+            intensity_count[img_matrix[row][col]] += 1
+    intensity_probability = [0.0] * 256
+    total_pixels = len(img_matrix) * len(img_matrix[0])
+    for index in range(256):
+        intensity_probability[index] = intensity_count[index] / total_pixels
+    for index in range(1, 256):
+        intensity_probability[index] += intensity_probability[index - 1]
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[row])):
+            img_matrix[row][col] = int(intensity_probability[img_matrix[row][col]] * 255.0)
+    return img_matrix

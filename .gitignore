@@ -1,4 +1,5 @@
 .ipynb_checkpoints
 src/static/new_images
-/src/dist
-/src/*
+src/__pycache__
+src/dist
+src/*
