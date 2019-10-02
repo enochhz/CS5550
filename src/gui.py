@@ -54,6 +54,8 @@ class Window(Frame):
         self.initialize_gray_level_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
+        self.initialize_histogram_equalization_frame(Frame(self))
+        self.initialize_spatial_filtering_frame(Frame(self))
         self.initialize_image_frame(Frame(self))
     
     def initialize_menu(self):
@@ -112,6 +114,47 @@ class Window(Frame):
              length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
         self.zoom_shrink_scale.set(1)
         self.zoom_shrink_scale.pack(side=LEFT)
+
+    def initialize_histogram_equalization_frame(self, histogram_equalization_frame):
+        histogram_equalization_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        # Initialize algorithms drop down menu and resize button
+        self.zooming_algorithm = StringVar(histogram_equalization_frame)
+        self.zooming_algorithm.set("Global") # default value
+        algorithms = list(self.zooming_algorithms_list.keys())
+        algorithms = ['Global', 'Local']
+        self.zooming_algorithm_input = OptionMenu(histogram_equalization_frame, self.zooming_algorithm, algorithms[0], algorithms[1])
+        self.zooming_algorithm_input.pack(side=LEFT)
+
+        self.width_input = Text(histogram_equalization_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        self.width_input.pack(side=LEFT)
+        # Set default values of inputs
+        self.ori_img = Image.open(self.img_path)
+        self.new_width, self.new_height = self.ori_img.size
+        self.width_input.insert(END, self.new_width)
+        self.height_input.insert(END, self.new_height)
+        resize_button = Button(histogram_equalization_frame, text="Histogram Equalization")
+        resize_button.pack(side=LEFT)
+
+    def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
+        spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        # Initialize algorithms drop down menu and resize button
+        self.zooming_algorithm = StringVar(spatial_filtering_frame)
+        self.zooming_algorithm.set("Smoothing") # default value
+        algorithms = list(self.zooming_algorithms_list.keys())
+        algorithms = ['Smoothing', 'Median', 'Sharpening', 'Laplcian', 'High-boosting']
+        self.zooming_algorithm_input = OptionMenu(spatial_filtering_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3])
+        self.zooming_algorithm_input.pack(side=LEFT)
+
+        self.width_input = Text(spatial_filtering_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        self.width_input.pack(side=LEFT)
+        # Set default values of inputs
+        self.ori_img = Image.open(self.img_path)
+        self.new_width, self.new_height = self.ori_img.size
+        self.width_input.insert(END, self.new_width)
+        self.height_input.insert(END, self.new_height)
+        resize_button = Button(spatial_filtering_frame, text="Histogram Equalization")
+        resize_button.pack(side=LEFT)
+
 
     def initialize_image_frame(self, image_frame):
         image_frame.pack(padx=10, pady=10)
