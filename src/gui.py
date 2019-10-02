@@ -107,20 +107,24 @@ class Window(Frame):
         self.histogram_equalization_menu = OptionMenu(histogram_equalization_frame, self.histogram_equalization_choice, histogram_equalization_options[0], histogram_equalization_options[1])
         self.histogram_equalization_menu.pack(side=LEFT)
 
-        mask_size_input = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
-        mask_size_input.pack(side=LEFT)
+        self.histogram_equalization_mask_width = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.histogram_equalization_mask_width.pack(side=LEFT)
+        self.histogram_equalization_mask_height = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.histogram_equalization_mask_height.pack(side=LEFT)
         # Set default values of inputs
-        mask_size_input.insert(END, 3)
+        self.histogram_equalization_mask_width.insert(END, 3)
+        self.histogram_equalization_mask_height.insert(END, 3)
         resize_button = Button(histogram_equalization_frame, text="Histogram Equalization", command=self.histogram_equalization)
         resize_button.pack(side=LEFT)
     
     def histogram_equalization(self):
         if self.histogram_equalization_choice.get() == 'Global':
-            self.update_image(self.get_new_size_img('P', self.new_width, self.new_height))
             new_img_array = img_processor.global_histogram_equalization(self.img_array)
             self.update_image(Image.fromarray(new_img_array.astype('uint8')))
-        else:
-            print("Local")
+        elif self.histogram_equalization_choice.get() == 'Local':
+            new_img_array = img_processor.local_histogram_equalization(self.img_array, 
+                int(self.histogram_equalization_mask_width.get('1.0', END)), int(self.histogram_equalization_mask_height.get('1.0', END)))
+            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
 
     def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
         spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=self.functionality_frame_height)

@@ -99,7 +99,7 @@ def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
     return new_img_array
 
 def global_histogram_equalization(img_matrix):
-    intensity_count = [0.0] * 256
+    intensity_count = np.zeros(256) # [0.0] * 256
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[row])):
             intensity_count[img_matrix[row][col]] += 1
@@ -112,4 +112,39 @@ def global_histogram_equalization(img_matrix):
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[row])):
             img_matrix[row][col] = int(intensity_probability[img_matrix[row][col]] * 255.0)
+    return img_matrix
+
+def local_histogram_equalization(img_matrix, width, height):
+    mid_val = int(width * height / 2.0)
+    # find the number of rows and columns to be padded with zero
+    index = 0
+    done = False
+    for i in range(height):
+        for j in range(width):
+            if index == mid_val:
+                pad_height = i
+                pad_width = j
+                done = True
+                break
+            index += 1
+        if done:
+            break
+    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
+    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            cdf = np.zeros(256) # cumulative distribution function (cdf)
+            index = 0
+            for x in range(height):
+                for y in range(width):
+                    # find the middle element in the window
+                    if index == mid_val:
+                        ele = padding_matrix[row + x, col + y]
+                    pos = padding_matrix[row + x, col + y]
+                    cdf[pos] += 1
+                    index += 1
+            # compute the cdf for the values in the window
+            for i in range(1, 256):
+                cdf[i] = cdf[i] + cdf[i-1]
+            img_matrix[row][col] = int(cdf[ele] / (width * height) * 255.0)
     return img_matrix
