@@ -52,11 +52,11 @@ class Window(Frame):
         self.initialize_menu()
         self.initialize_image_resize_frame(Frame(self))
         self.initialize_gray_level_frame(Frame(self))
-        self.initialize_image_helper_frame(Frame(self))
-        self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
         self.initialize_bit_panel_removal_frame(Frame(self))
+        self.initialize_image_helper_frame(Frame(self))
+        self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self))
     
     def initialize_menu(self):
@@ -99,25 +99,8 @@ class Window(Frame):
         gray_level_button = Button(gray_level_frame, text="Change gray level", command=self.change_gray_level)
         gray_level_button.pack(side=LEFT)
 
-    def initialize_image_helper_frame(self, image_helper_frame):
-        image_helper_frame.pack(padx=20, pady=20)
-        image_helper_frame.place(x=0, y=self.functionality_frame_height * 2, width=self.global_width, height=self.functionality_frame_height)
-        # Pop up original image
-        popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
-        popup_button.pack(side=LEFT)
-        # Button for histogram displaying
-        display_histogram_button = Button(image_helper_frame, text='Histogram Diagram')
-        display_histogram_button.pack(padx=5, side=LEFT)
-
-    def initialize_zoom_shrink_frame(self, zoom_shrink_frame):
-        zoom_shrink_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=100)
-        self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
-             length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
-        self.zoom_shrink_scale.set(1)
-        self.zoom_shrink_scale.pack(side=LEFT)
-
     def initialize_histogram_equalization_frame(self, histogram_equalization_frame):
-        histogram_equalization_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        histogram_equalization_frame.place(x=0, y=self.functionality_frame_height * 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
         self.zooming_algorithm = StringVar(histogram_equalization_frame)
         self.zooming_algorithm.set("Global") # default value
@@ -137,29 +120,49 @@ class Window(Frame):
         resize_button.pack(side=LEFT)
 
     def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
-        spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
-        self.zooming_algorithm = StringVar(spatial_filtering_frame)
-        self.zooming_algorithm.set("Smoothing") # default value
-        algorithms = list(self.zooming_algorithms_list.keys())
-        algorithms = ['Smoothing', 'Median', 'Sharpening', 'Laplcian', 'High-boosting']
-        self.zooming_algorithm_input = OptionMenu(spatial_filtering_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3])
-        self.zooming_algorithm_input.pack(side=LEFT)
+        self.spatial_filter_option = StringVar(spatial_filtering_frame)
+        self.spatial_filter_option.set("Smoothing") # default value
+        filters = ['Smoothing', 'Median', 'Sharpening', 'Laplcian', 'High-boosting']
+        self.filter_option_menu = OptionMenu(spatial_filtering_frame, self.spatial_filter_option, filters[0], filters[1], filters[2], filters[3])
+        self.filter_option_menu.pack(side=LEFT)
 
-        self.width_input = Text(spatial_filtering_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
-        self.width_input.pack(side=LEFT)
+        self.mask_size_input = Text(spatial_filtering_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        self.mask_size_input.pack(side=LEFT)
         # Set default values of inputs
-        self.ori_img = Image.open(self.img_path)
-        self.new_width, self.new_height = self.ori_img.size
-        self.width_input.insert(END, self.new_width)
-        self.height_input.insert(END, self.new_height)
+        self.mask_size_input.insert(END, 3)
         resize_button = Button(spatial_filtering_frame, text="Filtering")
         resize_button.pack(side=LEFT)
 
     def initialize_bit_panel_removal_frame(self, bit_panel_removal_frame):
-        bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        bits_label = [1, 2, 3, 4, 5, 6, 7, 8]
+        bits_vars = []
+        for bit in bits_label:
+            var = IntVar()
+            check_button = Checkbutton(bit_panel_removal_frame, text=bit, variable=var)
+            check_button.pack(side=LEFT)
+            bits_vars.append(var)
         resize_button = Button(bit_panel_removal_frame, text="Bit Panel Removal")
         resize_button.pack(side=LEFT)
+
+    def initialize_image_helper_frame(self, image_helper_frame):
+        image_helper_frame.pack(padx=20, pady=20)
+        image_helper_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.global_width, height=self.functionality_frame_height)
+        # Pop up original image
+        popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
+        popup_button.pack(side=LEFT)
+        # Button for histogram displaying
+        display_histogram_button = Button(image_helper_frame, text='Histogram Diagram')
+        display_histogram_button.pack(padx=5, side=LEFT)
+
+    def initialize_zoom_shrink_frame(self, zoom_shrink_frame):
+        zoom_shrink_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=100)
+        self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
+             length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
+        self.zoom_shrink_scale.set(1)
+        self.zoom_shrink_scale.pack(side=LEFT)
 
     def initialize_image_frame(self, image_frame):
         image_frame.pack(padx=10, pady=10)
