@@ -148,3 +148,118 @@ def local_histogram_equalization(img_matrix, width, height):
                 cdf[i] = cdf[i] + cdf[i-1]
             img_matrix[row][col] = int(cdf[ele] / (width * height) * 255.0)
     return img_matrix
+
+def smoothing_filtering(img_matrix, width, height):
+    mid_val = int(width * height / 2.0)
+    # find the number of rows and columns to be padded with zero
+    index = 0
+    done = False
+    for i in range(height):
+        for j in range(width):
+            if index == mid_val:
+                pad_height = i
+                pad_width = j
+                done = True
+                break
+            index += 1
+        if done:
+            break
+    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
+    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            sum = 0
+            for x in range(height):
+                for y in range(width):
+                    sum += padding_matrix[row + x][col + y]
+            img_matrix[row][col] = int(sum / (width * height))
+    return img_matrix
+
+def median_filtering(img_matrix, width, height):
+    mid_val = int(width * height / 2.0)
+    # find the number of rows and columns to be padded with zero
+    index = 0
+    done = False
+    for i in range(height):
+        for j in range(width):
+            if index == mid_val:
+                pad_height = i
+                pad_width = j
+                done = True
+                break
+            index += 1
+        if done:
+            break
+    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
+    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            list = []
+            for x in range(height):
+                for y in range(width):
+                    list.append(padding_matrix[row + x][col + y])
+            list.sort()
+            img_matrix[row][col] = list[mid_val]
+    return img_matrix
+
+def sharpening_laplacian_filtering(img_matrix, width, height):
+    mid_val = int(width * height / 2.0)
+    # find the number of rows and columns to be padded with zero
+    index = 0
+    done = False
+    for i in range(height):
+        for j in range(width):
+            if index == mid_val:
+                pad_height = i
+                pad_width = j
+                done = True
+                break
+            index += 1
+        if done:
+            break
+    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
+    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            sum = 0
+            index = 0
+            for x in range(height):
+                for y in range(width):
+                    if index == mid_val:
+                        sum += padding_matrix[row + x][col + y] * 8
+                    else:
+                        sum += padding_matrix[row + x][col + y] * -1
+                    index += 1
+            img_matrix[row][col] += int(sum / (width * height))
+    return img_matrix
+
+def high_boosting_filtering(img_matrix, width, height, a):
+    mid_val = int(width * height / 2.0)
+    # find the number of rows and columns to be padded with zero
+    index = 0
+    done = False
+    for i in range(height):
+        for j in range(width):
+            if index == mid_val:
+                pad_height = i
+                pad_width = j
+                done = True
+                break
+            index += 1
+        if done:
+            break
+    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
+    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            sum = 0
+            index = 0
+            for x in range(height):
+                for y in range(width):
+                    if index == mid_val:
+                        sum += padding_matrix[row + x][col + y] * 8
+                    else:
+                        sum += padding_matrix[row + x][col + y] * -1
+                    index += 1
+            img_matrix[row][col] += int(sum / (width * height))
+    return img_matrix

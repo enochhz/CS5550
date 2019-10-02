@@ -126,21 +126,46 @@ class Window(Frame):
                 int(self.histogram_equalization_mask_width.get('1.0', END)), int(self.histogram_equalization_mask_height.get('1.0', END)))
             self.update_image(Image.fromarray(new_img_array.astype('uint8')))
 
+    '''
+    Initialize spatial filtering frame
+    '''
     def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
         spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
         self.spatial_filter_choice = StringVar(spatial_filtering_frame)
         self.spatial_filter_choice.set("Smoothing") # default value
-        filters = ['Smoothing', 'Median', 'Sharpening', 'Laplcian', 'High-boosting']
+        filters = ['Smoothing', 'Median', 'Sharpening Laplcian', 'High-boosting']
         self.filter_option_menu = OptionMenu(spatial_filtering_frame, self.spatial_filter_choice, filters[0], filters[1], filters[2], filters[3])
         self.filter_option_menu.pack(side=LEFT)
 
-        mask_size_input = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
-        mask_size_input.pack(side=LEFT)
+        self.spatial_filtering_mask_width = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.spatial_filtering_mask_width.pack(side=LEFT)
+        self.spatial_filtering_mask_width.insert(END, 3)
+        self.spatial_filtering_mask_height = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.spatial_filtering_mask_height.pack(side=LEFT)
+        self.spatial_filtering_mask_height.insert(END, 3)
+        self.high_boosting_filter_a = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.high_boosting_filter_a.pack(side=LEFT)
+        self.high_boosting_filter_a.insert(END, 3)
         # Set default values of inputs
-        mask_size_input.insert(END, 3)
-        resize_button = Button(spatial_filtering_frame, text="Filtering")
-        resize_button.pack(side=LEFT)
+        spatial_filtering_button = Button(spatial_filtering_frame, text="Filtering", command=self.spatial_filtering)
+        spatial_filtering_button.pack(side=LEFT)
+    
+    def spatial_filtering(self):
+        if self.spatial_filter_choice.get() == "Smoothing":
+            new_img_array = img_processor.smoothing_filtering(self.img_array,
+                int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+        elif self.spatial_filter_choice.get() == "Median":
+            new_img_array = img_processor.median_filtering(self.img_array,
+                int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+        elif self.spatial_filter_choice.get() == "Sharpening Laplcian":
+            new_img_array = img_processor.sharpening_laplacian_filtering(self.img_array,
+                int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+        elif self.spatial_filter_choice.get() == "High-boosting":
+            print("High Boosting")
 
     def initialize_bit_panel_removal_frame(self, bit_panel_removal_frame):
         bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
