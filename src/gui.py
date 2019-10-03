@@ -1,7 +1,9 @@
 import os
-import matplotlib.pyplot as plt
 import cv2
 import numpy
+import matplotlib
+matplotlib.use("TKAgg")
+from matplotlib import pyplot as plt
 
 import tkinter.messagebox
 from tkinter import *
@@ -316,7 +318,6 @@ class Window(Frame):
 
     def show_histogram(self):
         im = cv2.imread(self.img_path)
-        # vals = im.mean(axis=2).flatten()
         vals = self.img_array.flatten()
         b, bins, patches = plt.hist(vals, 255)
         plt.xlim([0, 255])
