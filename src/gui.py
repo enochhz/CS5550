@@ -120,23 +120,25 @@ class Window(Frame):
     '''
     def initialize_image_resize_frame(self, image_resize_frame):
         image_resize_frame.place(x=0, y=0, width=self.functionality_frame_width, height=self.functionality_frame_height)
-        width_label = Label(image_resize_frame, text="width").pack(side=LEFT)
-        self.width_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
-        self.width_input.pack(side=LEFT)
-        height_label = Label(image_resize_frame, text="height").pack(side=LEFT)
-        self.height_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
-        self.height_input.pack(side=LEFT)
-        # Set default values of inputs
-        self.ori_img = Image.open(self.img_path)
-        self.new_width, self.new_height = self.ori_img.size
-        self.width_input.insert(END, self.new_width)
-        self.height_input.insert(END, self.new_height)
+
         # Initialize algorithms drop down menu and resize button
         self.zooming_algorithm = StringVar(image_resize_frame)
         self.zooming_algorithm.set("Nearest Neighbor") # default value
         algorithms = list(self.zooming_algorithms_list.keys())
         self.zooming_algorithm_input = OptionMenu(image_resize_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3], algorithms[4])
         self.zooming_algorithm_input.pack(side=LEFT)
+
+        self.ori_img = Image.open(self.img_path)
+        self.new_width, self.new_height = self.ori_img.size
+        width_label = Label(image_resize_frame, text="width").pack(side=LEFT)
+        self.width_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        self.width_input.pack(side=LEFT)
+        self.width_input.insert(END, self.new_width)
+        height_label = Label(image_resize_frame, text="height").pack(side=LEFT)
+        self.height_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
+        self.height_input.pack(side=LEFT)
+        self.height_input.insert(END, self.new_height)
+
         resize_button = Button(image_resize_frame, text="Resize", command=self.resize_image)
         resize_button.pack(side=LEFT)
 
@@ -170,11 +172,14 @@ class Window(Frame):
     '''
     def initialize_gray_level_frame(self, gray_level_frame):
         gray_level_frame.place(x=0, y=self.functionality_frame_height, width=self.functionality_frame_width, height=self.functionality_frame_height)
-        gray_level_label = Label(gray_level_frame, text="Bits").pack(side=LEFT)
+
         self.gray_level = StringVar(gray_level_frame)
         self.gray_level.set("8") # default value
         self.gray_level_input = OptionMenu(gray_level_frame, self.gray_level, "1", "2", "3", "4", "5", "6", "7", "8")
         self.gray_level_input.pack(side=LEFT)
+
+        gray_level_label = Label(gray_level_frame, text="Bits").pack(side=LEFT)
+
         gray_level_button = Button(gray_level_frame, text="Change gray level", command=self.change_gray_level)
         gray_level_button.pack(side=LEFT)
 
@@ -300,7 +305,7 @@ class Window(Frame):
     '''
     def initialize_image_helper_frame(self, image_helper_frame):
         image_helper_frame.pack(padx=20, pady=20)
-        image_helper_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        image_helper_frame.place(x=0, y=self.image_frame_height / 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Pop up original image
         popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
         popup_button.pack(side=LEFT)
@@ -327,7 +332,7 @@ class Window(Frame):
     Build zooming shrinking frame
     '''
     def initialize_zoom_shrink_frame(self, zoom_shrink_frame):
-        zoom_shrink_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=100)
+        zoom_shrink_frame.place(x=0, y=self.image_frame_height/2 + self.functionality_frame_height, width=self.functionality_frame_width, height=100)
         self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
              length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
         self.zoom_shrink_scale.set(1)
@@ -350,12 +355,15 @@ class Window(Frame):
         image_frame.place(x=self.functionality_frame_width, y=0, width=self.image_frame_width, height=self.image_frame_height)
         # Image Info
         self.img_info = Label(image_frame)
-        self.img_info.pack()
+        self.img_info.pack(side=TOP)
+
         # Image Displaying Label
         self.image_label = Label(image_frame)
         self.image_label.pack()
+        self.image_label.place(relx=.5, rely=.5, anchor="center")
         self.update_image(Image.open(self.img_path))
         self.ori_photo_image = ImageTk.PhotoImage(self.ori_img)
+
     
     def update_image(self, img):
         gray_level = self.gray_level.get()
