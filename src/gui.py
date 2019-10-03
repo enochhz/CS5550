@@ -274,14 +274,15 @@ class Window(Frame):
     '''
     def initialize_bit_panel_removal_frame(self, bit_panel_removal_frame):
         bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
-        bits_label = [1, 2, 3, 4, 5, 6, 7, 8]
+        bits_label = [0, 1, 2, 3, 4, 5, 6, 7]
         self.bits_vars = []
         for bit in bits_label:
             var = IntVar()
+            var.set(1)
             check_button = Checkbutton(bit_panel_removal_frame, text=bit, variable=var)
             check_button.pack(side=LEFT)
             self.bits_vars.append(var)
-        resize_button = Button(bit_panel_removal_frame, text="Bit Panel Removal", command=self.bit_panel_removal)
+        resize_button = Button(bit_panel_removal_frame, text="Update Bit Panel", command=self.bit_panel_removal)
         resize_button.pack(side=LEFT)
     
     def bit_panel_removal(self):
@@ -291,7 +292,7 @@ class Window(Frame):
             if self.bits_vars[7 - i].get() == 1:
                 bit_mask |= 1
         print(f"bit plane value: {bit_mask}")
-        bit_mask = ~bit_mask
+        # bit_mask = ~bit_mask
 
         new_img_array = img_processor.bit_panel_removal(self.img_array, bit_mask)
         self.update_image(Image.fromarray(new_img_array.astype('uint8')))
