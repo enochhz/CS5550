@@ -247,7 +247,7 @@ def sharpening_laplacian_filtering(img_matrix, width, height):
             img_matrix[row][col] = sum
     return img_matrix
 
-def high_boosting_filtering(img_matrix, width, height, a):
+def high_boosting_filtering(img_matrix, width, height, K):
     mid_val = int(width * height / 2.0)
     # find the number of rows and columns to be padded with zero
     index = 0
@@ -267,16 +267,16 @@ def high_boosting_filtering(img_matrix, width, height, a):
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             sum = 0.0
-            index = 0
             for x in range(height):
                 for y in range(width):
-                    if index == mid_val:
-                        sum += padding_matrix[row + x][col + y] * 8
-                    else:
-                        sum += padding_matrix[row + x][col + y] * -1
-                    index += 1
-            img_matrix[row][col] *= (a - 1.0)
-            img_matrix[row][col] += int(sum / (width * height))
+                    sum += padding_matrix[row + x][col + y]
+            sum /= (width * height)
+            sum = (img_matrix[row][col] + K * (img_matrix[row][col] - sum))
+            if sum > 255:
+                sum = 255
+            elif sum < 0:
+                sum = 0
+            img_matrix[row][col] = sum
     return img_matrix
 
 def bit_panel_removal(img_matrix, bit_mask):
