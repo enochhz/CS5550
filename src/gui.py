@@ -61,7 +61,7 @@ class Window(Frame):
         self.initialize_bit_panel_removal_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
-        self.initialize_image_frame(Frame(self))
+        self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
     
     '''
     Build Menu
