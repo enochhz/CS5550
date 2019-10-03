@@ -277,6 +277,7 @@ def high_boosting_filtering(img_matrix, width, height, a):
 def bit_panel_removal(img_matrix, value):
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            if img_matrix[row][col] == value:
-                img_matrix[row][col] = 0
+            # if img_matrix[row][col] == value:
+            #     img_matrix[row][col] = 0
+            img_matrix[row][col] &= value
     return img_matrix

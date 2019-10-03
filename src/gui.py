@@ -283,7 +283,14 @@ class Window(Frame):
             if self.bits_vars[i].get() == 1:
                 value += 2 ** i
         print(f"bit plane removal value: {value}")
-        new_img_array = img_processor.bit_panel_removal(self.img_array, value)
+        bit_panel = 0
+        for i in range(len(self.bits_vars)):
+            bit_panel <<= 1
+            if self.bits_vars[7 - i].get() == 1:
+                bit_panel |= 1
+        print(f"bit plane value: {bit_panel}")
+        bit_panel = ~bit_panel
+        new_img_array = img_processor.bit_panel_removal(self.img_array, bit_panel)
         self.update_image(Image.fromarray(new_img_array.astype('uint8')))
 
     ''' 
