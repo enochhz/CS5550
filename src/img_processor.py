@@ -195,7 +195,10 @@ def high_boosting_filtering(ori_img_matrix, mask_width, mask_height, K):
             img_matrix[row][col] = sum
     return img_matrix
 
-def bit_panel_removal(ori_img_matrix, bit_mask):
+'''
+Bit panel updating algorithm
+'''
+def update_bit_panel(ori_img_matrix, bit_mask):
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):

@@ -1,13 +1,9 @@
-import os
-import numpy
-import cv2
+import os, numpy, cv2
 import matplotlib
 matplotlib.use("TKAgg")
 from matplotlib import pyplot as plt
 
-import tkinter.messagebox
 from tkinter import *
-from tkinter import filedialog
 from PIL import ImageTk, Image
 from functools import partial
 
@@ -22,11 +18,12 @@ class Window(Frame):
         self.initialization()
     
     def initialization(self):
+        # Default values 
         self.img_path = "./static/lena512.pbm"
         self.img_array = numpy.array(Image.open(self.img_path))
         self.functionality_frame_width, self.functionality_frame_height = 450, 50
         self.image_frame_width, self.image_frame_height = 780, 700
-
+        # Set up frames
         self.initialize_menu()
         self.initialize_image_resize_frame(Frame(self))
         self.initialize_gray_level_frame(Frame(self))
@@ -36,7 +33,6 @@ class Window(Frame):
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
-
         self.master.geometry(f"{self.functionality_frame_width + self.image_frame_width}x{self.image_frame_height}")
     
     '''
@@ -52,25 +48,23 @@ class Window(Frame):
 
     def open_image(self):
         # choose an new image path
-        self.img_path =  filedialog.askopenfilename(initialdir = "./static",title = "Select file",filetypes = (
+        new_img_path =  filedialog.askopenfilename(initialdir = "./static",title = "Select file",filetypes = (
             ("pbm file", "*.pbm"), 
             ("all files","*.*"),
             ("jpeg files","*.jpg")))
-        self.gray_level.set("8")
-        # update the new image display
-        self.ori_img = Image.open(self.img_path)
-        self.img_width, self.img_height = self.ori_img.size
-        # self.img_array = imread(self.img_path)
-        self.img_array = numpy.array(Image.open(self.img_path))
-        self.new_width, self.new_height = self.ori_img.size
-        self.update_image(numpy.array(self.ori_img))
-        # Update width and heighter contoller and bits controller
-        self.width_input.delete(1.0, END)
-        self.width_input.insert(END, self.new_width)
-        self.height_input.delete(1.0, END)
-        self.height_input.insert(END, self.new_height)
-        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
-        self.ori_photo_image = ImageTk.PhotoImage(self.ori_img)
+        if new_img_path:
+            self.img_path = new_img_path
+            # Update the new image display
+            self.ori_img = Image.open(self.img_path)
+            self.img_width, self.img_height = self.ori_img.size
+            self.img_array = numpy.array(Image.open(self.img_path))
+            self.new_width, self.new_height = self.ori_img.size
+            self.update_image(numpy.array(self.ori_img))
+            # Update width and heighter contoller and bits controller
+            self.width_input.delete(1.0, END)
+            self.width_input.insert(END, self.new_width)
+            self.height_input.delete(1.0, END)
+            self.height_input.insert(END, self.new_height)
 
     def save_image(self):
         popup_save_window = Toplevel()
@@ -166,21 +160,40 @@ class Window(Frame):
         self.histogram_equalization_choice = StringVar(histogram_equalization_frame)
         self.histogram_equalization_choice.set("Global") # default value
         histogram_equalization_options = ['Global', 'Local']
-        self.histogram_equalization_menu = OptionMenu(histogram_equalization_frame, self.histogram_equalization_choice, histogram_equalization_options[0], histogram_equalization_options[1])
+        self.histogram_equalization_menu = OptionMenu(histogram_equalization_frame, self.histogram_equalization_choice, histogram_equalization_options[0], histogram_equalization_options[1], 
+            command=self.histogram_equalization_option_menu_handler)
         self.histogram_equalization_menu.pack(side=LEFT)
 
         width_label = Label(histogram_equalization_frame, text="width").pack(side=LEFT)
-        self.histogram_equalization_mask_width = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.histogram_equalization_mask_width = Text(histogram_equalization_frame, width=3, height=1, 
+            highlightbackground='black', highlightthickness=1, background="gray")
         self.histogram_equalization_mask_width.pack(side=LEFT)
         self.histogram_equalization_mask_width.insert(END, 3)
 
         height_label = Label(histogram_equalization_frame, text="height").pack(side=LEFT)
-        self.histogram_equalization_mask_height = Text(histogram_equalization_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.histogram_equalization_mask_height = Text(histogram_equalization_frame, width=3, height=1, 
+            highlightbackground='black', highlightthickness=1, background="gray")
         self.histogram_equalization_mask_height.pack(side=LEFT)
         self.histogram_equalization_mask_height.insert(END, 3)
 
+        # Initially, mask width and height input are disabled
+        self.histogram_equalization_mask_width.config(state=DISABLED)
+        self.histogram_equalization_mask_height.config(state=DISABLED)
+
         resize_button = Button(histogram_equalization_frame, text="Histogram Equalization", command=self.histogram_equalization)
         resize_button.pack(side=LEFT)
+
+    def histogram_equalization_option_menu_handler(self, *args):
+        if self.histogram_equalization_choice.get() == 'Global':
+            self.histogram_equalization_mask_width.config(state=DISABLED)
+            self.histogram_equalization_mask_width.config(background='gray')
+            self.histogram_equalization_mask_height.config(state=DISABLED)
+            self.histogram_equalization_mask_height.config(background='gray')
+        elif self.histogram_equalization_choice.get() == 'Local':
+            self.histogram_equalization_mask_width.config(state=NORMAL)
+            self.histogram_equalization_mask_width.config(background='white')
+            self.histogram_equalization_mask_height.config(state=NORMAL)
+            self.histogram_equalization_mask_height.config(background='white')
     
     def histogram_equalization(self):
         if self.histogram_equalization_choice.get() == 'Global':
@@ -200,7 +213,8 @@ class Window(Frame):
         self.spatial_filter_choice = StringVar(spatial_filtering_frame)
         self.spatial_filter_choice.set("Smoothing") # default value
         filters = ['Smoothing', 'Median', 'Sharpening Laplcian', 'High Boosting']
-        self.filter_option_menu = OptionMenu(spatial_filtering_frame, self.spatial_filter_choice, filters[0], filters[1], filters[2], filters[3])
+        self.filter_option_menu = OptionMenu(spatial_filtering_frame, self.spatial_filter_choice, filters[0], filters[1], filters[2], filters[3],
+            command=self.spatial_fitering_option_menu_handler)
         self.filter_option_menu.pack(side=LEFT)
 
         width_label = Label(spatial_filtering_frame, text="width").pack(side=LEFT)
@@ -214,12 +228,21 @@ class Window(Frame):
         self.spatial_filtering_mask_height.insert(END, 3)
 
         k_label = Label(spatial_filtering_frame, text="K").pack(side=LEFT)
-        self.high_boosting_filter_a = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.high_boosting_filter_a = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
         self.high_boosting_filter_a.pack(side=LEFT)
         self.high_boosting_filter_a.insert(END, 3)
+        self.high_boosting_filter_a.config(state=DISABLED) # Initalially disable if high boosting is not chosen
 
         spatial_filtering_button = Button(spatial_filtering_frame, text="Filtering", command=self.spatial_filtering)
         spatial_filtering_button.pack(side=LEFT)
+
+    def spatial_fitering_option_menu_handler(self, *args):
+        if self.spatial_filter_choice.get() == 'High Boosting':
+            self.high_boosting_filter_a.config(background='white')
+            self.high_boosting_filter_a.config(state=NORMAL)
+        else:
+            self.high_boosting_filter_a.config(background='gray')
+            self.high_boosting_filter_a.config(state=DISABLED)
     
     def spatial_filtering(self):
         if self.spatial_filter_choice.get() == "Smoothing":
@@ -252,17 +275,17 @@ class Window(Frame):
             check_button = Checkbutton(bit_panel_frame, text=bit, variable=var)
             check_button.pack(side=LEFT)
             self.bits_vars.append(var)
-        resize_button = Button(bit_panel_frame, text="Update Bit Panel", command=self.bit_panel_removal)
+        resize_button = Button(bit_panel_frame, text="Update Bit Panel", command=self.update_bit_panel)
         resize_button.pack(side=LEFT)
     
-    def bit_panel_removal(self):
+    def update_bit_panel(self):
         bit_mask = 0
         for i in range(len(self.bits_vars)):
             bit_mask <<= 1
             if self.bits_vars[7 - i].get() == 1:
                 bit_mask |= 1
         print(f"bit plane value: {bit_mask}")
-        new_img_array = img_processor.bit_panel_removal(self.img_array, bit_mask)
+        new_img_array = img_processor.update_bit_panel(self.img_array, bit_mask)
         self.update_image(new_img_array)
 
     ''' 
@@ -283,11 +306,15 @@ class Window(Frame):
 
     def popup_original_image(self): 
         popup_image_window = Toplevel()
-        popup_image_window.wm_title(f"{self.img_path.split('/')[-1]} ({self.img_width} x {self.img_height})")
+        # Set information of the window
+        ori_img_width, ori_img_height = self.ori_img.size
+        popup_image_window.wm_title(f"{self.img_path.split('/')[-1]} ({ori_img_width} x {ori_img_height})")
         popup_image_label = Label(popup_image_window)
         popup_image_label.pack()
-        popup_image_label.configure(image=self.ori_photo_image)
-        popup_image_label.image = self.ori_photo_image
+        # Display the image 
+        display_img = ImageTk.PhotoImage(Image.open(self.img_path))
+        popup_image_label.configure(image=display_img)
+        popup_image_label.image = display_img
 
     def show_histogram(self):
         vals = self.modified_img_array.flatten()
