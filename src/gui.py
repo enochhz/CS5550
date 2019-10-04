@@ -1,5 +1,6 @@
 import os
 import numpy
+import cv2
 import matplotlib
 matplotlib.use("TKAgg")
 from matplotlib import pyplot as plt
@@ -339,11 +340,12 @@ class Window(Frame):
         self.zoom_shrink_scale.pack(side=LEFT)
 
     def activate_zoom_shrink(self, value):
-        new_width = int(float(self.new_width) * float(value))
-        new_height = int(float(self.new_height) * float(value))
+        new_width = int(float(len(self.modified_img_array[0])) * float(value))
+        new_height = int(float(len(self.modified_img_array)) * float(value))
         self.img_info.configure(text=f"{new_width} x {new_height}")
-        self.modfied_img = self.modified_img.resize((new_width, new_height))
-        self.display_img = ImageTk.PhotoImage(self.modfied_img)
+        self.modified_img = Image.fromarray(self.modified_img_array)
+        self.modified_img = self.modified_img.resize((new_width, new_height))
+        self.display_img = ImageTk.PhotoImage(self.modified_img)
         self.image_label.configure(image=self.display_img)
 
     '''
@@ -355,14 +357,13 @@ class Window(Frame):
         # Image Info
         self.img_info = Label(image_frame)
         self.img_info.pack(side=TOP)
-
         # Image Displaying Label
         self.image_label = Label(image_frame)
         self.image_label.pack()
         self.image_label.place(relx=.5, rely=.5, anchor="center")
-        self.update_image(Image.open(self.img_path))
-        self.ori_photo_image = ImageTk.PhotoImage(self.ori_img)
-
+        # load default image and display it
+        self.img_array = numpy.array(Image.open(self.img_path))
+        self.update_image2(self.img_array.copy())
     
     def update_image(self, img):
         gray_level = self.gray_level.get()

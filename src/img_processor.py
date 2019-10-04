@@ -94,15 +94,15 @@ def bilinear(img_matrix, w2, h2):
 '''
 Gray Level Converting Algorithm
 '''
-def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
+def convertGrayLevel(ori_img_matrix, ori_gray_level, new_gray_level):
     ori_pixel_range = 2 ** ori_gray_level
     new_pixel_range = 2 ** new_gray_level
     ratio = float(new_pixel_range) / float(ori_pixel_range)
-    new_img_array = img_array.copy()
-    for row in range(len(img_array)):
-        for col in range(len(img_array[row])):
-            new_img_array[row][col] = int(img_array[row][col] * ratio) * (256 / (2 ** new_gray_level))
-    return new_img_array
+    new_img_matrix = ori_img_matrix.copy()
+    for row in range(len(ori_img_matrix)):
+        for col in range(len(ori_img_matrix[row])):
+            new_img_matrix[row][col] = int(ori_img_matrix[row][col] * ratio) * (256 / (2 ** new_gray_level))
+    return new_img_matrix
 
 '''
 Histogram equalization algorithms
