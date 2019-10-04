@@ -1,5 +1,4 @@
 import os
-import cv2
 import numpy
 import matplotlib
 matplotlib.use("TKAgg")
@@ -184,8 +183,9 @@ class Window(Frame):
         gray_level_button.pack(side=LEFT)
 
     def change_gray_level(self):
-        self.update_image(self.get_new_size_img('P', self.new_width, self.new_height))
-        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
+        gray_level = self.gray_level.get()
+        new_img_array = img_processor.convertGrayLevel(self.img_array, 8, int(gray_level))
+        self.update_image2(new_img_array)
 
     '''
     Build histogram equalization frame
@@ -320,8 +320,7 @@ class Window(Frame):
         popup_image_label.image = self.ori_photo_image
 
     def show_histogram(self):
-        im = cv2.imread(self.img_path)
-        vals = self.img_array.flatten()
+        vals = self.modified_img_array.flatten()
         b, bins, patches = plt.hist(vals, 255)
         plt.xlim([0, 255])
         plt.show()
@@ -342,11 +341,10 @@ class Window(Frame):
     def activate_zoom_shrink(self, value):
         new_width = int(float(self.new_width) * float(value))
         new_height = int(float(self.new_height) * float(value))
+        self.img_info.configure(text=f"{new_width} x {new_height}")
         self.modfied_img = self.modified_img.resize((new_width, new_height))
         self.display_img = ImageTk.PhotoImage(self.modfied_img)
-        # Update image information
         self.image_label.configure(image=self.display_img)
-        self.img_info.configure(text=f"{new_width} x {new_height}")
 
     '''
     Build image displaying frame
@@ -383,6 +381,7 @@ class Window(Frame):
         self.img_info.configure(text=f"{len(self.modified_img_array[0])} x {len(self.modified_img_array)}")
         self.display_img = ImageTk.PhotoImage(Image.fromarray(self.modified_img_array))
         self.image_label.configure(image=self.display_img)
+        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0)
 
 def main():
     root = Tk()

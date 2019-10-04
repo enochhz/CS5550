@@ -91,11 +91,14 @@ def bilinear(img_matrix, w2, h2):
             new_matrix[i][j] = new_pixel_val
     return new_matrix
 
+'''
+Gray Level Converting Algorithm
+'''
 def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
     ori_pixel_range = 2 ** ori_gray_level
     new_pixel_range = 2 ** new_gray_level
     ratio = float(new_pixel_range) / float(ori_pixel_range)
-    new_img_array = np.copy(img_array)
+    new_img_array = img_array.copy()
     for row in range(len(img_array)):
         for col in range(len(img_array[row])):
             new_img_array[row][col] = int(img_array[row][col] * ratio) * (256 / (2 ** new_gray_level))
