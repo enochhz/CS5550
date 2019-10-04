@@ -14,45 +14,19 @@ from functools import partial
 import img_processor
 
 class Window(Frame):
-    functionality_frame_width, functionality_frame_height = 450, 50
-    image_frame_width, image_frame_height = 780, 700
-
-    # functionality frame attributes
-    width_input, height_input  = "", ""
-    zooming_algorithms_list = {
-        'Nearest Neighbor': 'N',
-        'Linear Method (x)': 'LX',
-        'Linear Method (y)': 'LY',
-        'Bilinear Interpolation': 'BL',
-        'PIL Library': 'P'
-    }
-    zooming_algorithm, zooming_algorithm_input = "", ""
-    gray_level = ""
-
-    # image helper attributes
-    zoom_shrink_scale = ""
-    image_name_input = ""
-
-    # image frame attributes
-    image_label, img_path = "", "./static/lena512.pbm"
-    ori_img = Image.open(img_path)
-    ori_photo_image = ""
-    display_img, img_info = "", ""
-    img_width, img_height = ori_img.size
-    modified_img = ""
-
-    # image attribute
-    img_array = numpy.array(Image.open(img_path))
-    new_width, new_height = ori_img.size
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
         self.pack(fill=BOTH, expand=1)
-        self.initialize_frames()
-        self.master.geometry(f"{self.functionality_frame_width + self.image_frame_width}x{self.image_frame_height}")
+        self.initialization()
     
-    def initialize_frames(self):
+    def initialization(self):
+        self.img_path = "./static/lena512.pbm"
+        self.img_array = numpy.array(Image.open(self.img_path))
+        self.functionality_frame_width, self.functionality_frame_height = 450, 50
+        self.image_frame_width, self.image_frame_height = 780, 700
+
         self.initialize_menu()
         self.initialize_image_resize_frame(Frame(self))
         self.initialize_gray_level_frame(Frame(self))
@@ -62,6 +36,8 @@ class Window(Frame):
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
+
+        self.master.geometry(f"{self.functionality_frame_width + self.image_frame_width}x{self.image_frame_height}")
     
     '''
     Build Menu
@@ -87,7 +63,7 @@ class Window(Frame):
         # self.img_array = imread(self.img_path)
         self.img_array = numpy.array(Image.open(self.img_path))
         self.new_width, self.new_height = self.ori_img.size
-        self.update_image(self.ori_img)
+        self.update_image(numpy.array(self.ori_img))
         # Update width and heighter contoller and bits controller
         self.width_input.delete(1.0, END)
         self.width_input.insert(END, self.new_width)
@@ -112,7 +88,7 @@ class Window(Frame):
         popup_save_window.destroy()
         if not os.path.exists("./static/new_images"):
             os.mkdir('./static/new_images')
-        self.modified_img.save("./static/new_images/" + new_file_name)
+        (Image.fromarray(self.modified_img_array)).save("./static/new_images/" + new_file_name)
         messagebox.showinfo(title="Image Saved", message=f"You saved new image in \nstatic/new_images/{new_file_name}")
     
     '''
@@ -120,14 +96,13 @@ class Window(Frame):
     '''
     def initialize_image_resize_frame(self, image_resize_frame):
         image_resize_frame.place(x=0, y=0, width=self.functionality_frame_width, height=self.functionality_frame_height)
-
         # Initialize algorithms drop down menu and resize button
         self.zooming_algorithm = StringVar(image_resize_frame)
         self.zooming_algorithm.set("Nearest Neighbor") # default value
-        algorithms = list(self.zooming_algorithms_list.keys())
+        algorithms = ['Nearest Neighbor', 'Linear Method (x)', 'Linear Method (y)', 'Bilinear Interpolation', 'PIL Library']
         self.zooming_algorithm_input = OptionMenu(image_resize_frame, self.zooming_algorithm, algorithms[0], algorithms[1], algorithms[2], algorithms[3], algorithms[4])
         self.zooming_algorithm_input.pack(side=LEFT)
-
+        # Set default width and height in width and height input
         self.ori_img = Image.open(self.img_path)
         self.new_width, self.new_height = self.ori_img.size
         width_label = Label(image_resize_frame, text="width").pack(side=LEFT)
@@ -138,34 +113,28 @@ class Window(Frame):
         self.height_input = Text(image_resize_frame, width=4, height=1, highlightbackground='black', highlightthickness=1)
         self.height_input.pack(side=LEFT)
         self.height_input.insert(END, self.new_height)
-
         resize_button = Button(image_resize_frame, text="Resize", command=self.resize_image)
         resize_button.pack(side=LEFT)
 
     def resize_image(self):
-        algorithm = self.zooming_algorithms_list[self.zooming_algorithm.get()]
+        algorithm = self.zooming_algorithm.get()
         self.new_width = int(self.width_input.get('1.0', END))
         self.new_height = int(self.height_input.get('1.0', END))
-        # Get chosen algorithms and update the image
-        new_img = self.get_new_size_img(algorithm, self.new_width, self.new_height)
-        self.update_image(new_img) 
-        self.zoom_shrink_scale['variable'] = DoubleVar(value=1.0) 
-     
-    def get_new_size_img(self, algorithm, width, height):
-        if algorithm == 'P':
-            return Image.open(self.img_path).resize((width, height))
-        elif algorithm == 'N':
-            new_img_array = img_processor.nearestNeighbor(self.img_array, width, height)
-            return Image.fromarray(new_img_array.astype('uint8'))
-        elif algorithm == 'BL':
-            new_img_array = img_processor.bilinear(self.img_array, width, height)
-            return Image.fromarray(new_img_array.astype('uint8'))
-        elif algorithm == 'LX':
-            new_img_array = img_processor.linearX(self.img_array, width, height)
-            return Image.fromarray(new_img_array.astype('uint8'))
-        elif algorithm == 'LY':
-            new_img_array = img_processor.linearY(self.img_array, width, height)
-            return Image.fromarray(new_img_array.astype('uint8'))
+        if algorithm == 'Nearest Neighbor':
+            new_img_array = img_processor.nearestNeighbor(self.img_array, self.new_width, self.new_height)
+            self.update_image(new_img_array)
+        elif algorithm == 'Linear Method (x)':
+            new_img_array = img_processor.linearX(self.img_array, self.new_width, self.new_height)
+            self.update_image(new_img_array)
+        elif algorithm == 'Linear Method (y)':
+            new_img_array = img_processor.linearY(self.img_array, self.new_width, self.new_height)
+            self.update_image(new_img_array)
+        elif algorithm == 'Bilinear Interpolation':
+            new_img_array = img_processor.bilinear(self.img_array, self.new_width, self.new_height)
+            self.update_image(new_img_array)
+        elif algorithm == 'PIL Library':
+            new_img_array = numpy.array(Image.fromarray(self.img_array).resize((self.new_width, self.new_height)))
+            self.update_image(new_img_array)
 
     ''' 
     Build gray level modifying frame
@@ -186,7 +155,7 @@ class Window(Frame):
     def change_gray_level(self):
         gray_level = self.gray_level.get()
         new_img_array = img_processor.convertGrayLevel(self.img_array, 8, int(gray_level))
-        self.update_image2(new_img_array)
+        self.update_image(new_img_array)
 
     '''
     Build histogram equalization frame
@@ -216,11 +185,11 @@ class Window(Frame):
     def histogram_equalization(self):
         if self.histogram_equalization_choice.get() == 'Global':
             new_img_array = img_processor.global_histogram_equalization(self.img_array)
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
         elif self.histogram_equalization_choice.get() == 'Local':
             new_img_array = img_processor.local_histogram_equalization(self.img_array, 
                 int(self.histogram_equalization_mask_width.get('1.0', END)), int(self.histogram_equalization_mask_height.get('1.0', END)))
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
 
     '''
     Build spatial filtering frame
@@ -256,19 +225,19 @@ class Window(Frame):
         if self.spatial_filter_choice.get() == "Smoothing":
             new_img_array = img_processor.smoothing_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
         elif self.spatial_filter_choice.get() == "Median":
             new_img_array = img_processor.median_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
         elif self.spatial_filter_choice.get() == "Sharpening Laplcian":
             new_img_array = img_processor.sharpening_laplacian_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
         elif self.spatial_filter_choice.get() == "High Boosting":
             new_img_array = img_processor.high_boosting_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)), float(self.high_boosting_filter_a.get('1.0', END)))
-            self.update_image2(new_img_array)
+            self.update_image(new_img_array)
 
     '''
     Build bit panel frame
@@ -294,7 +263,7 @@ class Window(Frame):
                 bit_mask |= 1
         print(f"bit plane value: {bit_mask}")
         new_img_array = img_processor.bit_panel_removal(self.img_array, bit_mask)
-        self.update_image2(new_img_array)
+        self.update_image(new_img_array)
 
     ''' 
     Build image helper frame
@@ -327,7 +296,9 @@ class Window(Frame):
         plt.show()
     
     def save_modification(self):
-        self.img_array = self.modified_img_array
+        self.img_array = self.modified_img_array.copy()
+        self.new_width = len(self.img_array[0])
+        self.new_height = len(self.img_array)
 
     '''
     Build zooming shrinking frame
@@ -363,21 +334,9 @@ class Window(Frame):
         self.image_label.place(relx=.5, rely=.5, anchor="center")
         # load default image and display it
         self.img_array = numpy.array(Image.open(self.img_path))
-        self.update_image2(self.img_array.copy())
+        self.update_image(self.img_array.copy())
     
-    def update_image(self, img):
-        gray_level = self.gray_level.get()
-        self.modified_img = img
-        new_array = numpy.array(img)
-        new_img_array = img_processor.convertGrayLevel(new_array, 8, int(gray_level))
-        self.modified_img = Image.fromarray(new_img_array)
-        # Update the resolution label
-        self.img_info.configure(text=f"{self.new_width} x {self.new_height}")
-        # Updae the image
-        self.display_img = ImageTk.PhotoImage(self.modified_img)
-        self.image_label.configure(image=self.display_img)
-
-    def update_image2(self, new_img_array):
+    def update_image(self, new_img_array):
         self.modified_img_array = new_img_array
         self.img_info.configure(text=f"{len(self.modified_img_array[0])} x {len(self.modified_img_array)}")
         self.display_img = ImageTk.PhotoImage(Image.fromarray(self.modified_img_array))

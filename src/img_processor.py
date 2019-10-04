@@ -9,7 +9,7 @@ def nearestNeighbor(img_matrix, w2, h2):
     h1 = len(img_matrix)
     x_ratio = w1 / float(w2)
     y_ratio = h1 / float(h2)
-    new_matrix = np.zeros((h2, w2))
+    new_matrix = np.zeros((h2, w2), dtype=np.int32)
     for i in range(h2):
         for j in range(w2):
             px = math.floor(j * x_ratio)
@@ -22,7 +22,7 @@ def linearX(img_matrix, w2, h2):
     h1 = len(img_matrix)
     x_ratio = float(w1 - 1) / w2
     y_ratio = float(h1) / h2
-    new_matrix = np.zeros((h2, w2))
+    new_matrix = np.zeros((h2, w2), dtype=np.int32)
     for i in range(h2):
         for j in range(w2):
             x = int(x_ratio * j)
@@ -39,24 +39,7 @@ def linearY(img_matrix, w2, h2):
     h1 = len(img_matrix)
     x_ratio = float(w1) / w2
     y_ratio = float(h1 - 1) / h2
-    new_matrix = np.zeros((h2, w2))
-    for i in range(h2):
-        for j in range(w2):
-            x = int(x_ratio * j)
-            y = int(y_ratio * i)
-            A = img_matrix[y][x]
-            C = img_matrix[y+1][x]
-            y_diff = (y_ratio * i) - y
-            new_pixel_value = int(A * (1 - y_diff) + C * y_diff)
-            new_matrix[i][j] = new_pixel_value
-    return new_matrix
-
-def linearY(img_matrix, w2, h2):
-    w1 = len(img_matrix[0])
-    h1 = len(img_matrix)
-    x_ratio = float(w1) / w2
-    y_ratio = float(h1 - 1) / h2
-    new_matrix = np.zeros((h2, w2))
+    new_matrix = np.zeros((h2, w2), dtype=np.int32)
     for i in range(h2):
         for j in range(w2):
             x = int(x_ratio * j)
@@ -73,7 +56,7 @@ def bilinear(img_matrix, w2, h2):
     h1 = len(img_matrix)
     x_ratio = float(w1 - 1) / w2
     y_ratio = float(h1 - 1) / h2
-    new_matrix = np.zeros((h2, w2))
+    new_matrix = np.zeros((h2, w2), dtype=np.int32)
     for i in range(h2):
         for j in range(w2):
             x = int(x_ratio * j)
