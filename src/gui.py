@@ -58,7 +58,7 @@ class Window(Frame):
         self.initialize_gray_level_frame(Frame(self))
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
-        self.initialize_bit_panel_removal_frame(Frame(self))
+        self.initialize_bit_panel_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
@@ -270,19 +270,19 @@ class Window(Frame):
             self.update_image2(new_img_array)
 
     '''
-    Build bit panel removal frame
+    Build bit panel frame
     '''
-    def initialize_bit_panel_removal_frame(self, bit_panel_removal_frame):
-        bit_panel_removal_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+    def initialize_bit_panel_frame(self, bit_panel_frame):
+        bit_panel_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
         bits_label = [0, 1, 2, 3, 4, 5, 6, 7]
         self.bits_vars = []
         for bit in bits_label:
             var = IntVar()
             var.set(1)
-            check_button = Checkbutton(bit_panel_removal_frame, text=bit, variable=var)
+            check_button = Checkbutton(bit_panel_frame, text=bit, variable=var)
             check_button.pack(side=LEFT)
             self.bits_vars.append(var)
-        resize_button = Button(bit_panel_removal_frame, text="Update Bit Panel", command=self.bit_panel_removal)
+        resize_button = Button(bit_panel_frame, text="Update Bit Panel", command=self.bit_panel_removal)
         resize_button.pack(side=LEFT)
     
     def bit_panel_removal(self):
@@ -292,9 +292,8 @@ class Window(Frame):
             if self.bits_vars[7 - i].get() == 1:
                 bit_mask |= 1
         print(f"bit plane value: {bit_mask}")
-
         new_img_array = img_processor.bit_panel_removal(self.img_array, bit_mask)
-        self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+        self.update_image2(new_img_array)
 
     ''' 
     Build image helper frame
