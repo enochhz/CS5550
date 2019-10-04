@@ -292,7 +292,6 @@ class Window(Frame):
             if self.bits_vars[7 - i].get() == 1:
                 bit_mask |= 1
         print(f"bit plane value: {bit_mask}")
-        # bit_mask = ~bit_mask
 
         new_img_array = img_processor.bit_panel_removal(self.img_array, bit_mask)
         self.update_image(Image.fromarray(new_img_array.astype('uint8')))
