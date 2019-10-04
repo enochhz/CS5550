@@ -215,11 +215,11 @@ class Window(Frame):
     def histogram_equalization(self):
         if self.histogram_equalization_choice.get() == 'Global':
             new_img_array = img_processor.global_histogram_equalization(self.img_array)
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
         elif self.histogram_equalization_choice.get() == 'Local':
             new_img_array = img_processor.local_histogram_equalization(self.img_array, 
                 int(self.histogram_equalization_mask_width.get('1.0', END)), int(self.histogram_equalization_mask_height.get('1.0', END)))
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
 
     '''
     Build spatial filtering frame

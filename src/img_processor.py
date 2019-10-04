@@ -104,8 +104,9 @@ def convertGrayLevel(img_array, ori_gray_level, new_gray_level):
 '''
 Histogram equalization algorithms
 '''
-def global_histogram_equalization(img_matrix):
-    intensity_count = np.zeros(256) # [0.0] * 256
+def global_histogram_equalization(ori_img_matrix):
+    intensity_count = np.zeros(256) 
+    img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[row])):
             intensity_count[img_matrix[row][col]] += 1
@@ -120,29 +121,16 @@ def global_histogram_equalization(img_matrix):
             img_matrix[row][col] = int(intensity_probability[img_matrix[row][col]] * 255.0)
     return img_matrix
 
-def local_histogram_equalization(img_matrix, width, height):
-    mid_val = int(width * height / 2.0)
-    # find the number of rows and columns to be padded with zero
-    index = 0
-    done = False
-    for i in range(height):
-        for j in range(width):
-            if index == mid_val:
-                pad_height = i
-                pad_width = j
-                done = True
-                break
-            index += 1
-        if done:
-            break
-    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
-    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+def local_histogram_equalization(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    mid_val = int(mask_width * mask_height / 2.0)
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             cdf = np.zeros(256) # cumulative distribution function (cdf)
             index = 0
-            for x in range(height):
-                for y in range(width):
+            for x in range(mask_height):
+                for y in range(mask_width):
                     # find the middle element in the window
                     if index == mid_val:
                         ele = padding_matrix[row + x, col + y]
@@ -152,7 +140,7 @@ def local_histogram_equalization(img_matrix, width, height):
             # compute the cdf for the values in the window
             for i in range(1, 256):
                 cdf[i] = cdf[i] + cdf[i-1]
-            img_matrix[row][col] = int(cdf[ele] / (width * height) * 255.0)
+            img_matrix[row][col] = int(cdf[ele] / (mask_width * mask_height) * 255.0)
     return img_matrix
 
 '''
