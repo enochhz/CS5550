@@ -158,124 +158,66 @@ def local_histogram_equalization(img_matrix, width, height):
 '''
 Spatial Filtering Algorithms
 '''
-def smoothing_filtering(img_matrix, width, height):
-    mid_val = int(width * height / 2.0)
-    # find the number of rows and columns to be padded with zero
-    index = 0
-    done = False
-    for i in range(height):
-        for j in range(width):
-            if index == mid_val:
-                pad_height = i
-                pad_width = j
-                done = True
-                break
-            index += 1
-        if done:
-            break
-    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
-    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+def smoothing_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             sum = 0
-            for x in range(height):
-                for y in range(width):
+            for x in range(mask_height):
+                for y in range(mask_width):
                     sum += padding_matrix[row + x][col + y]
-            img_matrix[row][col] = int(sum / (width * height))
+            img_matrix[row][col] = int(sum / (mask_width * mask_height))
     return img_matrix
 
-def median_filtering(img_matrix, width, height):
-    mid_val = int(width * height / 2.0)
-    # find the number of rows and columns to be padded with zero
-    index = 0
-    done = False
-    for i in range(height):
-        for j in range(width):
-            if index == mid_val:
-                pad_height = i
-                pad_width = j
-                done = True
-                break
-            index += 1
-        if done:
-            break
-    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
-    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+def median_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    median_index = int(mask_width * mask_height / 2.0)
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             list = []
-            for x in range(height):
-                for y in range(width):
+            for x in range(mask_height):
+                for y in range(mask_width):
                     list.append(padding_matrix[row + x][col + y])
             list.sort()
-            img_matrix[row][col] = list[mid_val]
+            img_matrix[row][col] = list[median_index]
     return img_matrix
 
-def sharpening_laplacian_filtering(img_matrix, width, height):
-    mid_val = int(width * height / 2.0)
-    # find the number of rows and columns to be padded with zero
-    index = 0
-    done = False
-    for i in range(height):
-        for j in range(width):
-            if index == mid_val:
-                pad_height = i
-                pad_width = j
-                done = True
-                break
-            index += 1
-        if done:
-            break
-    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
-    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+def sharpening_laplacian_filtering(ori_img_matrix, mask_width, mask_height):
+    mid_val = int(mask_width * mask_height / 2.0)
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            sum = 0
+            new_val = 0
             index = 0
-            for x in range(height):
-                for y in range(width):
+            for x in range(mask_height):
+                for y in range(mask_width):
                     if index == mid_val:
-                        sum += padding_matrix[row + x][col + y] * (width * height - 1)
+                        new_val += padding_matrix[row + x][col + y] * (mask_width * mask_height - 1)
                     else:
-                        sum += padding_matrix[row + x][col + y] * -1
+                        new_val += padding_matrix[row + x][col + y] * -1
                     index += 1
-            sum += img_matrix[row][col]
-            if sum > 255:
-                sum = 255
-            elif sum < 0:
-                sum = 0
-            img_matrix[row][col] = sum
+            new_val += img_matrix[row][col]
+            new_val = 255 if new_val > 255 else new_val
+            new_val = 0 if new_val < 0 else new_val
+            img_matrix[row][col] = new_val
     return img_matrix
 
-def high_boosting_filtering(img_matrix, width, height, K):
-    mid_val = int(width * height / 2.0)
-    # find the number of rows and columns to be padded with zero
-    index = 0
-    done = False
-    for i in range(height):
-        for j in range(width):
-            if index == mid_val:
-                pad_height = i
-                pad_width = j
-                done = True
-                break
-            index += 1
-        if done:
-            break
-    # padding_matrix = np.pad(img_matrix, pad_width=1, mode='constant', constant_values=0)
-    padding_matrix = np.pad(img_matrix, ((pad_height, pad_height), (pad_width, pad_width)), 'constant')
+def high_boosting_filtering(ori_img_matrix, mask_width, mask_height, K):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             sum = 0.0
-            for x in range(height):
-                for y in range(width):
+            for x in range(mask_height):
+                for y in range(mask_width):
                     sum += padding_matrix[row + x][col + y]
-            sum /= (width * height)
+            sum /= (mask_width * mask_height)
             sum = (img_matrix[row][col] + K * (img_matrix[row][col] - sum))
-            if sum > 255:
-                sum = 255
-            elif sum < 0:
-                sum = 0
+            sum = 255 if sum > 255 else sum
+            sum = 0 if sum < 0 else sum
             img_matrix[row][col] = sum
     return img_matrix
 

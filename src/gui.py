@@ -243,7 +243,7 @@ class Window(Frame):
         self.spatial_filtering_mask_height.pack(side=LEFT)
         self.spatial_filtering_mask_height.insert(END, 3)
 
-        a_label = Label(spatial_filtering_frame, text="A").pack(side=LEFT)
+        k_label = Label(spatial_filtering_frame, text="K").pack(side=LEFT)
         self.high_boosting_filter_a = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
         self.high_boosting_filter_a.pack(side=LEFT)
         self.high_boosting_filter_a.insert(END, 3)
@@ -255,19 +255,19 @@ class Window(Frame):
         if self.spatial_filter_choice.get() == "Smoothing":
             new_img_array = img_processor.smoothing_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
         elif self.spatial_filter_choice.get() == "Median":
             new_img_array = img_processor.median_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
         elif self.spatial_filter_choice.get() == "Sharpening Laplcian":
             new_img_array = img_processor.sharpening_laplacian_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)))
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
         elif self.spatial_filter_choice.get() == "High Boosting":
             new_img_array = img_processor.high_boosting_filtering(self.img_array,
                 int(self.spatial_filtering_mask_width.get('1.0', END)), int(self.spatial_filtering_mask_height.get('1.0', END)), float(self.high_boosting_filter_a.get('1.0', END)))
-            self.update_image(Image.fromarray(new_img_array.astype('uint8')))
+            self.update_image2(new_img_array)
 
     '''
     Build bit panel removal frame
@@ -308,6 +308,9 @@ class Window(Frame):
         # Button for histogram displaying
         display_histogram_button = Button(image_helper_frame, text='Histogram Diagram', command=self.show_histogram)
         display_histogram_button.pack(padx=5, side=LEFT)
+        # Button for saving modification
+        modification_saving_button = Button(image_helper_frame, text='Save Modification', command=self.save_modification)
+        modification_saving_button.pack(padx=5, side=LEFT)
 
     def popup_original_image(self): 
         popup_image_window = Toplevel()
@@ -323,6 +326,9 @@ class Window(Frame):
         b, bins, patches = plt.hist(vals, 255)
         plt.xlim([0, 255])
         plt.show()
+    
+    def save_modification(self):
+        self.img_array = self.modified_img_array
 
     '''
     Build zooming shrinking frame
@@ -371,6 +377,12 @@ class Window(Frame):
         self.img_info.configure(text=f"{self.new_width} x {self.new_height}")
         # Updae the image
         self.display_img = ImageTk.PhotoImage(self.modified_img)
+        self.image_label.configure(image=self.display_img)
+
+    def update_image2(self, new_img_array):
+        self.modified_img_array = new_img_array
+        self.img_info.configure(text=f"{len(self.modified_img_array[0])} x {len(self.modified_img_array)}")
+        self.display_img = ImageTk.PhotoImage(Image.fromarray(self.modified_img_array))
         self.image_label.configure(image=self.display_img)
 
 def main():
