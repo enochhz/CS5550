@@ -113,7 +113,7 @@ def local_histogram_equalization(ori_img_matrix, mask_width, mask_height):
     mid_val = int(mask_width * mask_height / 2.0)
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            cdf = np.zeros(256) # cumulative distribution function (cdf)
+            cdf = [0] * 256 # cumulative distribution function (cdf)
             index = 0
             for x in range(mask_height):
                 for y in range(mask_width):
