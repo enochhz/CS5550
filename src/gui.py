@@ -3,6 +3,8 @@ import matplotlib
 matplotlib.use("TKAgg")
 from matplotlib import pyplot as plt
 
+import tkinter.messagebox
+from tkinter import filedialog
 from tkinter import *
 from PIL import ImageTk, Image
 from functools import partial
