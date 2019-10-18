@@ -1,3 +1,4 @@
+import sys
 import math
 import numpy as np
 
@@ -204,3 +205,89 @@ def update_bit_panel(ori_img_matrix, bit_mask):
         for col in range(len(img_matrix[0])):
             img_matrix[row][col] &= bit_mask 
     return img_matrix
+
+'''
+Spatial filtering operations
+'''
+def arithmetic_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            new_value = 0.0
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    new_value += padding_matrix[row + x][col + y]
+            new_value /= (mask_height * mask_width)
+            img_matrix[row][col] = new_value
+    return img_matrix
+
+def geometric_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            new_value = 1.0
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    new_value *= padding_matrix[row + x][col + y]
+            new_value **= (1/(mask_height * mask_width))
+            img_matrix[row][col] = new_value
+    return img_matrix
+
+def harmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            new_value = 0.0
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    new_value += (1 / padding_matrix[row + x][col + y])
+            new_value = (mask_height * mask_width) / new_value
+            img_matrix[row][col] = new_value
+    return img_matrix
+
+def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    # TOOD
+    return img_matrix
+
+def max_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            new_value = -sys.maxsize
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    new_value = max(new_value, padding_matrix[row + x][col + y])
+            img_matrix[row][col] = new_value
+    return img_matrix
+
+def min_filering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            new_value = sys.maxsize
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    new_value = min(new_value, padding_matrix[row + x][col + y])
+            img_matrix[row][col] = new_value
+    return img_matrix
+
+def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    # TOOD
+
+def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
+    img_matrix = ori_img_matrix.copy()
+    # TODO
+
+''' 
+Noise generator
+'''
