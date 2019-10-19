@@ -32,6 +32,8 @@ class Window(Frame):
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
         self.initialize_bit_panel_frame(Frame(self))
+        self.initialize_noise_generating_frame(Frame(self))
+        self.initialize_restoration_spatial_filtering_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
@@ -289,6 +291,109 @@ class Window(Frame):
         print(f"bit plane value: {bit_mask}")
         new_img_array = img_processor.update_bit_panel(self.img_array, bit_mask)
         self.update_image(new_img_array)
+
+    '''
+    Build noise generating frame
+    '''
+    def initialize_noise_generating_frame(self, noise_generating_frame):
+        noise_generating_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        # Initialize algorithms drop down menu and resize button
+        self.noise_generating_choice = StringVar(noise_generating_frame)
+        self.noise_generating_choice.set("Gaussian") # default value
+        generators = ['Gaussian', 'Poisson', 'Salt and Pepper', 'Speckle']
+        self.noise_generating_option_menu = OptionMenu(noise_generating_frame, self.noise_generating_choice, 
+            generators[0], generators[1], generators[2], generators[3])
+        self.noise_generating_option_menu.pack(side=LEFT)
+
+        noise_generating_button = Button(noise_generating_frame, text="Generating Noise", command=self.noise_generating)
+        noise_generating_button.pack(side=LEFT)
+    
+    def noise_generating(self):
+        print("TODO: noice generating")
+        if self.noise_generating_choice.get() == "Gaussian":
+            new_img_array = img_processor.gaussian(self.img_array)
+            self.update_image(new_img_array)
+        elif self.noise_generating_choice.get() == "Poisson":
+            new_img_array = img_processor.poisson(self.img_array)
+            self.update_image(new_img_array)
+        elif self.noise_generating_choice.get() == "Salt and Pepper":
+            new_img_array = img_processor.salt_and_pepper(self.img_array)
+            self.update_image(new_img_array)
+        elif self.noise_generating_choice.get() == "Speckle":
+            new_img_array = img_processor.speckle(self.img_array)
+            self.update_image(new_img_array)
+
+    '''
+    Build restoration spatial filtering frame
+    '''
+    def initialize_restoration_spatial_filtering_frame(self, restoration_spatial_filtering_frame):
+        restoration_spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        # Initialize algorithms drop down menu and resize button
+        self.restoration_spatial_filter_choice = StringVar(restoration_spatial_filtering_frame)
+        self.restoration_spatial_filter_choice.set("Arithmetic mean filter") # default value
+        filters = ['Arithmetic mean filter', 'Geometric mean filter', 'Harmonic mean filter', 
+                    'Contraharmonic mean filter', 'Max filter', 'Min fliter', 
+                    'Midpoint filter', 'Alpha-trimmed mean filter']
+        self.restoration_filter_option_menu = OptionMenu(restoration_spatial_filtering_frame, self.restoration_spatial_filter_choice, 
+            filters[0], filters[1], filters[2], filters[3], filters[4], filters[5], filters[6], filters[7],
+            command=self.restoration_spatial_fitering_option_menu_handler)
+        self.restoration_filter_option_menu.pack(side=LEFT)
+
+        width_label = Label(restoration_spatial_filtering_frame, text="width").pack(side=LEFT)
+        self.restoration_spatial_filtering_mask_width = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.restoration_spatial_filtering_mask_width.pack(side=LEFT)
+        self.restoration_spatial_filtering_mask_width.insert(END, 3)
+
+        height_label = Label(restoration_spatial_filtering_frame, text="height").pack(side=LEFT)
+        self.restoration_spatial_filtering_mask_height = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1)
+        self.restoration_spatial_filtering_mask_height.pack(side=LEFT)
+        self.restoration_spatial_filtering_mask_height.insert(END, 3)
+
+        # k_label = Label(restoration_spatial_filtering_frame, text="K").pack(side=LEFT)
+        # self.high_boosting_filter_a = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
+        # self.high_boosting_filter_a.pack(side=LEFT)
+        # self.high_boosting_filter_a.insert(END, 3)
+        # self.high_boosting_filter_a.config(state=DISABLED) # Initalially disable if high boosting is not chosen
+
+        restoration_spatial_filtering_button = Button(restoration_spatial_filtering_frame, text="Filtering", command=self.restoration_spatial_filtering)
+        restoration_spatial_filtering_button.pack(side=LEFT)
+
+    def restoration_spatial_fitering_option_menu_handler(self, *args):
+        print("restoration_spatial_fitering_option_menu_handler(self)")
+
+    def restoration_spatial_filtering(self):
+        if self.restoration_spatial_filter_choice.get() == "Arithmetic mean filter":
+            new_img_array = img_processor.arithmetic_mean_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Geometric mean filter":
+            new_img_array = img_processor.geometric_mean_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Harmonic mean filter":
+            new_img_array = img_processor.harmonic_mean_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Contraharmonic mean filter":
+            new_img_array = img_processor.contraharmonic_mean_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Max filter":
+            new_img_array = img_processor.max_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Min filter":
+            new_img_array = img_processor.min_filering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Midpoint filter":
+            new_img_array = img_processor.midpoint_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
+        elif self.restoration_spatial_filter_choice.get() == "Alpha-trimmed mean filter":
+            new_img_array = img_processor.alpha_trimmed_mean_filtering(self.img_array,
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+            self.update_image(new_img_array)
 
     ''' 
     Build image helper frame

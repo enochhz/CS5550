@@ -207,7 +207,29 @@ def update_bit_panel(ori_img_matrix, bit_mask):
     return img_matrix
 
 '''
-Spatial filtering operations
+Noise generating algorithms
+'''
+def gaussian(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    # TODO
+    return img_matrix
+
+def poisson(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    # TODO
+    return img_matrix
+
+def salt_and_pepper(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    # TODO
+    return img_matrix
+
+def speckle(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    # TODO
+    return img_matrix
+'''
+Restoration Spatial filtering operations
 '''
 def arithmetic_mean_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
@@ -282,11 +304,13 @@ def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     # TOOD
+    return img_matrix
 
 def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     # TODO
+    return img_matrix
 
 ''' 
 Noise generator
