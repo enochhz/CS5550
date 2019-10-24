@@ -273,7 +273,19 @@ def harmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
 def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
-    # TOOD
+    p = 1.5
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            up_sum = 0.0
+            down_sum = 0.0
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    up_sum += padding_matrix[row + x][col + y] ** (p + 1)
+                    down_sum += padding_matrix[row + x][col + y] ** p
+            new_value = up_sum / down_sum
+            new_value = 255 if new_value > 255 else new_value
+            new_value = 0 if new_value < 0 else new_value
+            img_matrix[row][col] = new_value
     return img_matrix
 
 def max_filtering(ori_img_matrix, mask_width, mask_height):
@@ -303,11 +315,33 @@ def min_filering(ori_img_matrix, mask_width, mask_height):
 def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
-    # TOOD
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            max_num = -sys.maxsize
+            min_num = sys.maxsize
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    max_num = max(padding_matrix[row + x][col + y], max_num)
+                    min_num = min(padding_matrix[row + x][col + y], min_num)
+            new_value = (max_num + min_num) / 2
+            new_value = 255 if new_value > 255 else new_value
+            new_value = 0 if new_value < 0 else new_value
+            img_matrix[row][col] = new_value
     return img_matrix
 
 def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
-    # TODO
+    p = 2
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[0])):
+            sum = 0.0
+            for x in range(mask_height):
+                for y in range(mask_width):
+                    if (x + 1) * (y + 1) > p and (x + 1) * (y + 1) < (mask_height * mask_width) - p:
+                        sum += padding_matrix[row + x][col + y]
+            new_value = (sum) / (mask_height * mask_width - (2 * p))
+            new_value = 255 if new_value > 255 else new_value
+            new_value = 0 if new_value < 0 else new_value
+            img_matrix[row][col] = new_value
     return img_matrix
