@@ -311,7 +311,3 @@ def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
     img_matrix = ori_img_matrix.copy()
     # TODO
     return img_matrix
-
-''' 
-Noise generator
-'''

@@ -53,8 +53,9 @@ class Window(Frame):
     def open_image(self):
         # choose an new image path
         new_img_path =  filedialog.askopenfilename(initialdir = "./static",title = "Select file",filetypes = (
-            ("pbm file", "*.pbm"), 
             ("all files","*.*"),
+            ("tif file","*.tif"),
+            ("pbm file", "*.pbm"), 
             ("jpeg files","*.jpg")))
         if new_img_path:
             self.img_path = new_img_path
