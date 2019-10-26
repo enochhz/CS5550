@@ -29,11 +29,13 @@ class Window(Frame):
         self.initialize_menu()
         self.initialize_image_resize_frame(Frame(self))
         self.initialize_gray_level_frame(Frame(self))
+        self.initialize_bit_panel_frame(Frame(self))
+
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
-        self.initialize_bit_panel_frame(Frame(self))
         # self.initialize_noise_generating_frame(Frame(self))
         self.initialize_restoration_spatial_filtering_frame(Frame(self))
+
         self.initialize_compression_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
@@ -158,10 +160,36 @@ class Window(Frame):
         self.update_image(new_img_array)
 
     '''
+    Build bit panel frame
+    '''
+    def initialize_bit_panel_frame(self, bit_panel_frame):
+        bit_panel_frame.place(x=0, y=self.functionality_frame_height * 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        bits_label = [0, 1, 2, 3, 4, 5, 6, 7]
+        self.bits_vars = []
+        for bit in bits_label:
+            var = IntVar()
+            var.set(1)
+            check_button = Checkbutton(bit_panel_frame, text=bit, variable=var)
+            check_button.pack(side=LEFT)
+            self.bits_vars.append(var)
+        resize_button = Button(bit_panel_frame, text="Update Bit Panel", command=self.update_bit_panel)
+        resize_button.pack(side=LEFT)
+    
+    def update_bit_panel(self):
+        bit_mask = 0
+        for i in range(len(self.bits_vars)):
+            bit_mask <<= 1
+            if self.bits_vars[7 - i].get() == 1:
+                bit_mask |= 1
+        print(f"bit plane value: {bit_mask}")
+        new_img_array = img_processor.update_bit_panel(self.img_array, bit_mask)
+        self.update_image(new_img_array)
+
+    '''
     Build histogram equalization frame
     '''
     def initialize_histogram_equalization_frame(self, histogram_equalization_frame):
-        histogram_equalization_frame.place(x=0, y=self.functionality_frame_height * 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        histogram_equalization_frame.place(x=0, y=self.image_frame_height / 3, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize histogram equalization drop down menu and resize button
         self.histogram_equalization_choice = StringVar(histogram_equalization_frame)
         self.histogram_equalization_choice.set("Global") # default value
@@ -216,7 +244,7 @@ class Window(Frame):
     Build spatial filtering frame
     '''
     def initialize_spatial_filtering_frame(self, spatial_filtering_frame):
-        spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 3, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        spatial_filtering_frame.place(x=0, y=self.image_frame_height / 3 + self.functionality_frame_height, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
         self.spatial_filter_choice = StringVar(spatial_filtering_frame)
         self.spatial_filter_choice.set("Smoothing") # default value
@@ -272,32 +300,6 @@ class Window(Frame):
             self.update_image(new_img_array)
 
     '''
-    Build bit panel frame
-    '''
-    def initialize_bit_panel_frame(self, bit_panel_frame):
-        bit_panel_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
-        bits_label = [0, 1, 2, 3, 4, 5, 6, 7]
-        self.bits_vars = []
-        for bit in bits_label:
-            var = IntVar()
-            var.set(1)
-            check_button = Checkbutton(bit_panel_frame, text=bit, variable=var)
-            check_button.pack(side=LEFT)
-            self.bits_vars.append(var)
-        resize_button = Button(bit_panel_frame, text="Update Bit Panel", command=self.update_bit_panel)
-        resize_button.pack(side=LEFT)
-    
-    def update_bit_panel(self):
-        bit_mask = 0
-        for i in range(len(self.bits_vars)):
-            bit_mask <<= 1
-            if self.bits_vars[7 - i].get() == 1:
-                bit_mask |= 1
-        print(f"bit plane value: {bit_mask}")
-        new_img_array = img_processor.update_bit_panel(self.img_array, bit_mask)
-        self.update_image(new_img_array)
-
-    '''
     Build noise generating frame
     '''
     def initialize_noise_generating_frame(self, noise_generating_frame):
@@ -332,7 +334,7 @@ class Window(Frame):
     Build restoration spatial filtering frame
     '''
     def initialize_restoration_spatial_filtering_frame(self, restoration_spatial_filtering_frame):
-        restoration_spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        restoration_spatial_filtering_frame.place(x=0, y=self.image_frame_height / 3 + self.functionality_frame_height * 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
         self.restoration_spatial_filter_choice = StringVar(restoration_spatial_filtering_frame)
         self.restoration_spatial_filter_choice.set("Arithmetic mean filter") # default value
@@ -374,6 +376,7 @@ class Window(Frame):
             self.filter_p.delete('1.0', END)
             self.filter_p.insert(END, 2)
         else:
+            self.filter_p.delete('1.0', END)
             self.filter_p.config(background='gray')
             self.filter_p.config(state=DISABLED)
 
@@ -415,7 +418,7 @@ class Window(Frame):
     Build compression frame
     '''
     def initialize_compression_frame(self, compression_frame):
-        compression_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        compression_frame.place(x=0, y=self.image_frame_height * 2/3, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize compression algorithms drop down menu and the button
         self.compression_choise = StringVar(compression_frame)
         self.compression_choise.set("Run length coding(grayscale)") # default value
@@ -447,7 +450,7 @@ class Window(Frame):
     '''
     def initialize_image_helper_frame(self, image_helper_frame):
         image_helper_frame.pack(padx=20, pady=20)
-        image_helper_frame.place(x=0, y=self.image_frame_height / 2, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        image_helper_frame.place(x=0, y=self.image_frame_height * 2/3 + self.functionality_frame_height, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Pop up original image
         popup_button = Button(image_helper_frame, text="Original Image", command=self.popup_original_image)
         popup_button.pack(side=LEFT)
@@ -485,7 +488,7 @@ class Window(Frame):
     Build zooming shrinking frame
     '''
     def initialize_zoom_shrink_frame(self, zoom_shrink_frame):
-        zoom_shrink_frame.place(x=0, y=self.image_frame_height/2 + self.functionality_frame_height, width=self.functionality_frame_width, height=100)
+        zoom_shrink_frame.place(x=0, y=self.image_frame_height * 2/3 + self.functionality_frame_height * 2, width=self.functionality_frame_width, height=100)
         self.zoom_shrink_scale = Scale(zoom_shrink_frame, label='Zoom Shrink Scale', from_=0, to=5, orient=HORIZONTAL,
              length=400, showvalue=1, tickinterval=1, resolution=0.01, command=self.activate_zoom_shrink) 
         self.zoom_shrink_scale.set(1)
