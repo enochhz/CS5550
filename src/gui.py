@@ -32,8 +32,9 @@ class Window(Frame):
         self.initialize_histogram_equalization_frame(Frame(self))
         self.initialize_spatial_filtering_frame(Frame(self))
         self.initialize_bit_panel_frame(Frame(self))
-        self.initialize_noise_generating_frame(Frame(self))
+        # self.initialize_noise_generating_frame(Frame(self))
         self.initialize_restoration_spatial_filtering_frame(Frame(self))
+        self.initialize_compression_frame(Frame(self))
         self.initialize_image_helper_frame(Frame(self))
         self.initialize_zoom_shrink_frame(Frame(self))
         self.initialize_image_frame(Frame(self, highlightbackground="black", highlightthickness=1))
@@ -173,13 +174,11 @@ class Window(Frame):
         self.histogram_equalization_mask_width = Text(histogram_equalization_frame, width=3, height=1, 
             highlightbackground='black', highlightthickness=1, background="gray")
         self.histogram_equalization_mask_width.pack(side=LEFT)
-        self.histogram_equalization_mask_width.insert(END, 3)
 
         height_label = Label(histogram_equalization_frame, text="height").pack(side=LEFT)
         self.histogram_equalization_mask_height = Text(histogram_equalization_frame, width=3, height=1, 
             highlightbackground='black', highlightthickness=1, background="gray")
         self.histogram_equalization_mask_height.pack(side=LEFT)
-        self.histogram_equalization_mask_height.insert(END, 3)
 
         # Initially, mask width and height input are disabled
         self.histogram_equalization_mask_width.config(state=DISABLED)
@@ -190,6 +189,8 @@ class Window(Frame):
 
     def histogram_equalization_option_menu_handler(self, *args):
         if self.histogram_equalization_choice.get() == 'Global':
+            self.histogram_equalization_mask_width.delete('1.0', END)
+            self.histogram_equalization_mask_height.delete('1.0', END)
             self.histogram_equalization_mask_width.config(state=DISABLED)
             self.histogram_equalization_mask_width.config(background='gray')
             self.histogram_equalization_mask_height.config(state=DISABLED)
@@ -199,6 +200,8 @@ class Window(Frame):
             self.histogram_equalization_mask_width.config(background='white')
             self.histogram_equalization_mask_height.config(state=NORMAL)
             self.histogram_equalization_mask_height.config(background='white')
+            self.histogram_equalization_mask_width.insert(END, 3)
+            self.histogram_equalization_mask_height.insert(END, 3)
     
     def histogram_equalization(self):
         if self.histogram_equalization_choice.get() == 'Global':
@@ -235,7 +238,6 @@ class Window(Frame):
         k_label = Label(spatial_filtering_frame, text="K").pack(side=LEFT)
         self.high_boosting_filter_a = Text(spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
         self.high_boosting_filter_a.pack(side=LEFT)
-        self.high_boosting_filter_a.insert(END, 3)
         self.high_boosting_filter_a.config(state=DISABLED) # Initalially disable if high boosting is not chosen
 
         spatial_filtering_button = Button(spatial_filtering_frame, text="Filtering", command=self.spatial_filtering)
@@ -245,7 +247,9 @@ class Window(Frame):
         if self.spatial_filter_choice.get() == 'High Boosting':
             self.high_boosting_filter_a.config(background='white')
             self.high_boosting_filter_a.config(state=NORMAL)
+            self.high_boosting_filter_a.insert(END, 3)
         else:
+            self.high_boosting_filter_a.delete('1.0', END)
             self.high_boosting_filter_a.config(background='gray')
             self.high_boosting_filter_a.config(state=DISABLED)
     
@@ -271,7 +275,7 @@ class Window(Frame):
     Build bit panel frame
     '''
     def initialize_bit_panel_frame(self, bit_panel_frame):
-        bit_panel_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        bit_panel_frame.place(x=0, y=self.functionality_frame_height * 5, width=self.functionality_frame_width, height=self.functionality_frame_height)
         bits_label = [0, 1, 2, 3, 4, 5, 6, 7]
         self.bits_vars = []
         for bit in bits_label:
@@ -328,7 +332,7 @@ class Window(Frame):
     Build restoration spatial filtering frame
     '''
     def initialize_restoration_spatial_filtering_frame(self, restoration_spatial_filtering_frame):
-        restoration_spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        restoration_spatial_filtering_frame.place(x=0, y=self.functionality_frame_height * 4, width=self.functionality_frame_width, height=self.functionality_frame_height)
         # Initialize algorithms drop down menu and resize button
         self.restoration_spatial_filter_choice = StringVar(restoration_spatial_filtering_frame)
         self.restoration_spatial_filter_choice.set("Arithmetic mean filter") # default value
@@ -350,17 +354,28 @@ class Window(Frame):
         self.restoration_spatial_filtering_mask_height.pack(side=LEFT)
         self.restoration_spatial_filtering_mask_height.insert(END, 3)
 
-        # k_label = Label(restoration_spatial_filtering_frame, text="K").pack(side=LEFT)
-        # self.high_boosting_filter_a = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
-        # self.high_boosting_filter_a.pack(side=LEFT)
-        # self.high_boosting_filter_a.insert(END, 3)
-        # self.high_boosting_filter_a.config(state=DISABLED) # Initalially disable if high boosting is not chosen
+        p_label = Label(restoration_spatial_filtering_frame, text="P").pack(side=LEFT)
+        self.filter_p = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
+        self.filter_p.pack(side=LEFT)
+        self.filter_p.config(state=DISABLED) # Initalially disable if high boosting is not chosen
 
         restoration_spatial_filtering_button = Button(restoration_spatial_filtering_frame, text="Filtering", command=self.restoration_spatial_filtering)
         restoration_spatial_filtering_button.pack(side=LEFT)
 
     def restoration_spatial_fitering_option_menu_handler(self, *args):
-        print("restoration_spatial_fitering_option_menu_handler(self)")
+        if self.restoration_spatial_filter_choice.get() == 'Contraharmonic mean filter':
+            self.filter_p.config(background='white')
+            self.filter_p.config(state=NORMAL)
+            self.filter_p.delete('1.0', END)
+            self.filter_p.insert(END, 1.5)
+        elif self.restoration_spatial_filter_choice.get() == 'Alpha-trimmed mean filter':
+            self.filter_p.config(background='white')
+            self.filter_p.config(state=NORMAL)
+            self.filter_p.delete('1.0', END)
+            self.filter_p.insert(END, 2)
+        else:
+            self.filter_p.config(background='gray')
+            self.filter_p.config(state=DISABLED)
 
     def restoration_spatial_filtering(self):
         if self.restoration_spatial_filter_choice.get() == "Arithmetic mean filter":
@@ -377,7 +392,7 @@ class Window(Frame):
             self.update_image(new_img_array)
         elif self.restoration_spatial_filter_choice.get() == "Contraharmonic mean filter":
             new_img_array = img_processor.contraharmonic_mean_filtering(self.img_array,
-                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)), float(self.filter_p.get('1.0', END)))
             self.update_image(new_img_array)
         elif self.restoration_spatial_filter_choice.get() == "Max filter":
             new_img_array = img_processor.max_filtering(self.img_array,
@@ -393,7 +408,38 @@ class Window(Frame):
             self.update_image(new_img_array)
         elif self.restoration_spatial_filter_choice.get() == "Alpha-trimmed mean filter":
             new_img_array = img_processor.alpha_trimmed_mean_filtering(self.img_array,
-                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)))
+                int(self.restoration_spatial_filtering_mask_width.get('1.0', END)), int(self.restoration_spatial_filtering_mask_height.get('1.0', END)), float(self.filter_p.get('1.0', END)))
+            self.update_image(new_img_array)
+
+    '''
+    Build compression frame
+    '''
+    def initialize_compression_frame(self, compression_frame):
+        compression_frame.place(x=0, y=self.functionality_frame_height * 6, width=self.functionality_frame_width, height=self.functionality_frame_height)
+        # Initialize compression algorithms drop down menu and the button
+        self.compression_choise = StringVar(compression_frame)
+        self.compression_choise.set("Run length coding(grayscale)") # default value
+        filters = ['Run length coding(grayscale)', 'Run length coding(bit planes)',
+                    'Variable length Huffman coding', 'LZW']
+        self.compression_option_menu = OptionMenu(compression_frame, self.compression_choise, 
+            filters[0], filters[1], filters[2], filters[3])
+        self.compression_option_menu.pack(side=LEFT)
+
+        compression_button = Button(compression_frame, text="Compressing", command=self.compressing_image)
+        compression_button.pack(side=LEFT)
+
+    def compressing_image(self):
+        if self.compression_choise.get() == "Run length coding(grayscale)":
+            new_img_array = img_processor.run_length_coding_on_grayscale_values(self.img_array)
+            self.update_image(new_img_array)
+        elif self.compression_choise.get() == "Run length coding(bit planes)":
+            new_img_array = img_processor.run_length_coding_on_bit_planes(self.img_array)
+            self.update_image(new_img_array)
+        elif self.compression_choise.get() == "Variable length Huffman coding":
+            new_img_array = img_processor.variable_length_huffman_coding(self.img_array)
+            self.update_image(new_img_array)
+        elif self.compression_choise.get() == "LZW":
+            new_img_array = img_processor.lzw(self.img_array)
             self.update_image(new_img_array)
 
     ''' 

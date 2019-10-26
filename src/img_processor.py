@@ -228,6 +228,7 @@ def speckle(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
     # TODO
     return img_matrix
+
 '''
 Restoration Spatial filtering operations
 '''
@@ -270,10 +271,9 @@ def harmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
             img_matrix[row][col] = new_value
     return img_matrix
 
-def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
+def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
-    p = 1.5
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             up_sum = 0.0
@@ -329,10 +329,9 @@ def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
             img_matrix[row][col] = new_value
     return img_matrix
 
-def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
+def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
-    p = 2
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
             sum = 0.0
@@ -344,4 +343,31 @@ def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height):
             new_value = 255 if new_value > 255 else new_value
             new_value = 0 if new_value < 0 else new_value
             img_matrix[row][col] = new_value
+    return img_matrix
+
+'''
+Image compression algorithms
+'''
+def run_length_coding_on_grayscale_values(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    print("run length grayscale")
+    # TODO
+    return img_matrix
+
+def run_length_coding_on_bit_planes(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    print("run length bit planes")
+    # TODO
+    return img_matrix
+
+def variable_length_huffman_coding(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    print("Huffman coding")
+    # TODO
+    return img_matrix
+
+def lzw(ori_img_matrix):
+    img_matrix = ori_img_matrix.copy()
+    print("lzw")
+    # TODO
     return img_matrix
