@@ -317,15 +317,13 @@ def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            max_num = -sys.maxsize
-            min_num = sys.maxsize
+            max_num = 0
+            min_num = 255
             for x in range(mask_height):
                 for y in range(mask_width):
                     max_num = max(padding_matrix[row + x][col + y], max_num)
                     min_num = min(padding_matrix[row + x][col + y], min_num)
-            new_value = (max_num + min_num) / 2
-            new_value = 255 if new_value > 255 else new_value
-            new_value = 0 if new_value < 0 else new_value
+            new_value = min_num + (max_num - min_num) / 2;
             img_matrix[row][col] = new_value
     return img_matrix
 

@@ -339,7 +339,7 @@ class Window(Frame):
         self.restoration_spatial_filter_choice = StringVar(restoration_spatial_filtering_frame)
         self.restoration_spatial_filter_choice.set("Arithmetic mean filter") # default value
         filters = ['Arithmetic mean filter', 'Geometric mean filter', 'Harmonic mean filter', 
-                    'Contraharmonic mean filter', 'Max filter', 'Min fliter', 
+                    'Contraharmonic mean filter', 'Max filter', 'Min filter', 
                     'Midpoint filter', 'Alpha-trimmed mean filter']
         self.restoration_filter_option_menu = OptionMenu(restoration_spatial_filtering_frame, self.restoration_spatial_filter_choice, 
             filters[0], filters[1], filters[2], filters[3], filters[4], filters[5], filters[6], filters[7],
