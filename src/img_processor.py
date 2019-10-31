@@ -233,6 +233,7 @@ def speckle(ori_img_matrix):
 Restoration Spatial filtering operations
 '''
 def arithmetic_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    print('arithmetic mean filtering')
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
@@ -246,6 +247,7 @@ def arithmetic_mean_filtering(ori_img_matrix, mask_width, mask_height):
     return img_matrix
 
 def geometric_mean_filtering(ori_img_matrix, mask_width, mask_height):
+    print('geometric mean filtering')
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
@@ -254,7 +256,7 @@ def geometric_mean_filtering(ori_img_matrix, mask_width, mask_height):
             for x in range(mask_height):
                 for y in range(mask_width):
                     new_value *= padding_matrix[row + x][col + y]
-            new_value **= (1/(mask_height * mask_width))
+            new_value **= float(1.0/(mask_height * mask_width))
             img_matrix[row][col] = new_value
     return img_matrix
 
@@ -331,18 +333,20 @@ def midpoint_filtering(ori_img_matrix, mask_width, mask_height):
     return img_matrix
 
 def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
+    print("alpha trimmed mean filter")
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[0])):
-            sum = 0.0
+            list = []
             for x in range(mask_height):
                 for y in range(mask_width):
-                    if (x + 1) * (y + 1) > p and (x + 1) * (y + 1) < (mask_height * mask_width) - p:
-                        sum += padding_matrix[row + x][col + y]
-            new_value = (sum) / (mask_height * mask_width - (p))
-            new_value = 255 if new_value > 255 else new_value
-            new_value = 0 if new_value < 0 else new_value
+                    list.append(padding_matrix[row + x][col + y])
+            list.sort()
+            sum = 0
+            for i in range(int(p/2), int(len(list)-p/2)):
+                sum += list[i]
+            new_value = float(1.0/(len(list)-p)) * sum
             img_matrix[row][col] = new_value
     return img_matrix
 
