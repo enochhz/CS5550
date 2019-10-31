@@ -271,7 +271,7 @@ def harmonic_mean_filtering(ori_img_matrix, mask_width, mask_height):
             img_matrix[row][col] = new_value
     return img_matrix
 
-def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
+def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height, q):
     padding_matrix = np.pad(ori_img_matrix, ((int(mask_height/2), int(mask_height/2)), (int(mask_width/2), int(mask_width/2))), 'constant')
     img_matrix = ori_img_matrix.copy()
     for row in range(len(img_matrix)):
@@ -280,11 +280,14 @@ def contraharmonic_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
             down_sum = 0.0
             for x in range(mask_height):
                 for y in range(mask_width):
-                    up_sum += padding_matrix[row + x][col + y] ** (p + 1)
-                    down_sum += padding_matrix[row + x][col + y] ** p
-            new_value = up_sum / down_sum
-            new_value = 255 if new_value > 255 else new_value
-            new_value = 0 if new_value < 0 else new_value
+                    up_sum += padding_matrix[row + x][col + y] ** (q + 1)
+                    down_sum += padding_matrix[row + x][col + y] ** q 
+            if math.isnan(down_sum):
+                down_sum = 0
+            if math.isnan(up_sum / down_sum):
+                new_value = 0
+            else:
+                new_value = up_sum / down_sum
             img_matrix[row][col] = new_value
     return img_matrix
 
@@ -337,7 +340,7 @@ def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
                 for y in range(mask_width):
                     if (x + 1) * (y + 1) > p and (x + 1) * (y + 1) < (mask_height * mask_width) - p:
                         sum += padding_matrix[row + x][col + y]
-            new_value = (sum) / (mask_height * mask_width - (2 * p))
+            new_value = (sum) / (mask_height * mask_width - (p))
             new_value = 255 if new_value > 255 else new_value
             new_value = 0 if new_value < 0 else new_value
             img_matrix[row][col] = new_value

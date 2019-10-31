@@ -356,7 +356,7 @@ class Window(Frame):
         self.restoration_spatial_filtering_mask_height.pack(side=LEFT)
         self.restoration_spatial_filtering_mask_height.insert(END, 3)
 
-        p_label = Label(restoration_spatial_filtering_frame, text="P").pack(side=LEFT)
+        p_label = Label(restoration_spatial_filtering_frame, text="q").pack(side=LEFT)
         self.filter_p = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
         self.filter_p.pack(side=LEFT)
         self.filter_p.config(state=DISABLED) # Initalially disable if high boosting is not chosen
