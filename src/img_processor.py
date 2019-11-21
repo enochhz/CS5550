@@ -1,6 +1,7 @@
 import sys
 import math
 import numpy as np
+import time
 
 '''
 Resizing algorithms
@@ -354,10 +355,30 @@ def alpha_trimmed_mean_filtering(ori_img_matrix, mask_width, mask_height, p):
 Image compression algorithms
 '''
 def run_length_coding_on_grayscale_values(ori_img_matrix):
-    img_matrix = ori_img_matrix.copy()
-    print("run length grayscale")
-    # TODO
-    return img_matrix
+    start_time = time.time()
+    vector = ori_img_matrix.flatten()
+    counter = 1
+    prev = vector[0]
+    compressed_data = []
+    for i in range(1, len(vector)):
+        if vector[i] != prev:
+            compressed_data.append(counter)
+            compressed_data.append(prev)
+            counter, prev = 1, vector[i]
+        else:
+            counter += 1
+    compressed_data.append(counter)
+    compressed_data.append(prev)
+    end_time = time.time()
+    compressed_data = np.array(compressed_data)
+    compressed_data = compressed_data.astype(np.uint8)
+    print("Compressed data: ", compressed_data)
+    print("Compression time(RLC on Grayscale)", end_time - start_time)
+    print("Size of original data: ", sys.getsizeof(ori_img_matrix))
+    print("Size of compressed data: ", sys.getsizeof(compressed_data))
+    np.savetxt("ori_rlc_gray.txt", compressed_data, fmt="%s")
+    np.savetxt("compressed_rlc_gray.txt", ori_img_matrix, fmt="%s")
+    return ori_img_matrix
 
 def run_length_coding_on_bit_planes(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
