@@ -356,7 +356,10 @@ class Window(Frame):
         self.restoration_spatial_filtering_mask_height.pack(side=LEFT)
         self.restoration_spatial_filtering_mask_height.insert(END, 3)
 
-        p_label = Label(restoration_spatial_filtering_frame, text="q").pack(side=LEFT)
+        self.p_label_text = StringVar()
+        # self.p_label = Label(restoration_spatial_filtering_frame, text="D").pack(side=LEFT)
+        self.p_label_text.set("Q")
+        self.p_label = Label(restoration_spatial_filtering_frame, textvariable = self.p_label_text).pack(side=LEFT)
         self.filter_p = Text(restoration_spatial_filtering_frame, width=3, height=1, highlightbackground='black', highlightthickness=1, background="gray")
         self.filter_p.pack(side=LEFT)
         self.filter_p.config(state=DISABLED) # Initalially disable if high boosting is not chosen
@@ -369,12 +372,14 @@ class Window(Frame):
             self.filter_p.config(background='white')
             self.filter_p.config(state=NORMAL)
             self.filter_p.delete('1.0', END)
+            self.p_label_text.set("Q")
             self.filter_p.insert(END, 1.5)
         elif self.restoration_spatial_filter_choice.get() == 'Alpha-trimmed mean filter':
             self.filter_p.config(background='white')
             self.filter_p.config(state=NORMAL)
             self.filter_p.delete('1.0', END)
-            self.filter_p.insert(END, 2)
+            self.p_label_text.set("D")
+            self.filter_p.insert(END, 5)
         else:
             self.filter_p.delete('1.0', END)
             self.filter_p.config(background='gray')
