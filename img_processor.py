@@ -385,22 +385,14 @@ def run_length_coding_on_bit_planes(ori_img_matrix):
     print("run length bit planes")
     start_time = time.time()
     compressed_data = []
-    bit_panel1 = bit_panel_calculation(img_matrix, [])
-    bit_panel2 = bit_panel_calculation(img_matrix, [])
-    bit_panel3 = bit_panel_calculation(img_matrix, [])
-    bit_panel4 = bit_panel_calculation(img_matrix, [])
-    bit_panel5 = bit_panel_calculation(img_matrix, [])
-    bit_panel6 = bit_panel_calculation(img_matrix, [])
-    bit_panel7 = bit_panel_calculation(img_matrix, [])
-    bit_panel8 = bit_panel_calculation(img_matrix, [])
-    compressed_data.append(bit_panel1)
-    compressed_data.append(bit_panel2)
-    compressed_data.append(bit_panel3)
-    compressed_data.append(bit_panel4)
-    compressed_data.append(bit_panel5)
-    compressed_data.append(bit_panel6)
-    compressed_data.append(bit_panel7)
-    compressed_data.append(bit_panel8)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], compressed_data)
     end_time = time.time()
     np.savetxt("compressed_rlc_bit.txt", compressed_data, fmt="%s")
     print("Compression time(RLC on Bitpanel)", end_time - start_time)
@@ -408,7 +400,7 @@ def run_length_coding_on_bit_planes(ori_img_matrix):
     print("Size of compressed data: ", sys.getsizeof(compressed_data))
     return ori_img_matrix
 
-def bit_panel_calculation(img_matrix, bit_panel):
+def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
     target = 0
     counter = 0
     for row in range(len(img_matrix)):
@@ -421,13 +413,24 @@ def bit_panel_calculation(img_matrix, bit_panel):
                 counter += 1
             img_matrix[row][col] >>= 1
     bit_panel.append(counter)
-    return bit_panel
+    compressed_data.append(bit_panel)
 
 
 def variable_length_huffman_coding(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
     print("Huffman coding")
-    # TODO
+    # get probability
+    # figure out the target code
+    # convert original image to compressed data
+    value_counter = [0] * 256
+    for row in range(len(ori_img_matrix)):
+        for col in range(len(ori_img_matrix[row])):
+            value_counter[ori_img_matrix[row][col]] += 1
+    compressed_representation = [0] * 256
+    # change [] to [value, counter]
+    # sorted [] is [posiblity, [values]]
+    # compressed_representation
+    print(value_counter)
     return img_matrix
 
 def lzw(ori_img_matrix):
