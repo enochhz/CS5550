@@ -383,8 +383,46 @@ def run_length_coding_on_grayscale_values(ori_img_matrix):
 def run_length_coding_on_bit_planes(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
     print("run length bit planes")
-    # TODO
-    return img_matrix
+    start_time = time.time()
+    compressed_data = []
+    bit_panel1 = bit_panel_calculation(img_matrix, [])
+    bit_panel2 = bit_panel_calculation(img_matrix, [])
+    bit_panel3 = bit_panel_calculation(img_matrix, [])
+    bit_panel4 = bit_panel_calculation(img_matrix, [])
+    bit_panel5 = bit_panel_calculation(img_matrix, [])
+    bit_panel6 = bit_panel_calculation(img_matrix, [])
+    bit_panel7 = bit_panel_calculation(img_matrix, [])
+    bit_panel8 = bit_panel_calculation(img_matrix, [])
+    compressed_data.append(bit_panel1)
+    compressed_data.append(bit_panel2)
+    compressed_data.append(bit_panel3)
+    compressed_data.append(bit_panel4)
+    compressed_data.append(bit_panel5)
+    compressed_data.append(bit_panel6)
+    compressed_data.append(bit_panel7)
+    compressed_data.append(bit_panel8)
+    end_time = time.time()
+    np.savetxt("compressed_rlc_bit.txt", compressed_data, fmt="%s")
+    print("Compression time(RLC on Bitpanel)", end_time - start_time)
+    print("Size of original data: ", sys.getsizeof(ori_img_matrix))
+    print("Size of compressed data: ", sys.getsizeof(compressed_data))
+    return ori_img_matrix
+
+def bit_panel_calculation(img_matrix, bit_panel):
+    target = 0
+    counter = 0
+    for row in range(len(img_matrix)):
+        for col in range(len(img_matrix[row])):
+            if (img_matrix[row][col] & target != 1):
+                bit_panel.append(counter)
+                target ^= 1
+                counter = 0
+            else:
+                counter += 1
+            img_matrix[row][col] >>= 1
+    bit_panel.append(counter)
+    return bit_panel
+
 
 def variable_length_huffman_coding(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
