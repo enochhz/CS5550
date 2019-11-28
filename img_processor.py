@@ -418,49 +418,80 @@ def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
 
 
 def variable_length_huffman_coding(ori_img_matrix):
-    # img_matrix = ori_img_matrix.copy()
-    # print(img_matrix)
-    print("Huffman coding")
-    # get probability
+    start_time = time.time()
+    # 1.get probability
     frequency_array = [0] * 256
     for i in range(len(ori_img_matrix)):
         for j in range(len(ori_img_matrix[i])):
             frequency_array[ori_img_matrix[i][j]] += 1
-    # Create nodes
+    # 2.1 Create huffman nodes 
     node_array = []
     for i in range(len(frequency_array)):
-        node_array.append(HuffmanNode(frequency_array[i], i))
+        if frequency_array[i] != 0:
+            node_array.append(HuffmanNode(frequency_array[i], i))
     node_array.sort(key=cmp_to_key(lambda node1, node2: -1 if node1.frequency < node2.frequency else 1))
-    # Create huffman tree
+    # 2.2 Build huffman tree
     while (len(node_array) != 1):
         smallest1 = node_array.pop(0)
         smallest2 = node_array.pop(0)
         new_node = HuffmanNode(smallest1.frequency + smallest2.frequency, -1)
         new_node.add_left(smallest1)
-        new_node.add_left(smallest2)
+        new_node.add_right(smallest2)
         node_array.append(new_node)
         node_array.sort(key=cmp_to_key(lambda node1, node2: -1 if node1.frequency < node2.frequency else 1))
-    # print(node_array[0].frequency, node_array[0].value)
-    # DFS the parent node to find specific code
-    dfs(node_array[0], '')
-    # figure out the target code
-    # convert original image to compressed data
-    compressed_representation = [0] * 256
-    # change [] to [value, counter]
-    # sorted [] is [posiblity, [values]]
-    # compressed_representation
+    # 3.1 Construct the encoding table from the huffman tree
+    huffman_coding_dict = {}
+    dfs(node_array[0], '', huffman_coding_dict)
+    # 3.2 Convert the bit representation to interger
+    for key in huffman_coding_dict:
+        string_number = int(huffman_coding_dict[key], 2)
+        huffman_coding_dict[key] = string_number
+    print(huffman_coding_dict)
+    # 4. Convert original image using the encoding table
+    encoded_image = ori_img_matrix.copy()
+    for row in range(len(encoded_image)):
+        for col in range(len(encoded_image[0])):
+            encoded_image[row][col] = huffman_coding_dict[encoded_image[row][col]]
+    end_time = time.time()
+    print(ori_img_matrix)
+    print(encoded_image)
+    # 6. Time and Size analysis
+    print(f"Time used: {end_time - start_time}")
+    ori_size = 0
+    for row in range(len(ori_img_matrix)):
+        for col in range(len(ori_img_matrix[0])):
+            value = ori_img_matrix[row][col]
+            while value:
+                ori_size += 1
+                value >>= 1
+    print(f"Original size: {ori_size}")
+    compressed_size = 0
+    for row in range(len(encoded_image)):
+        for col in range(len(encoded_image[0])):
+            value = encoded_image[row][col]
+            while value:
+                compressed_size += 1
+                value >>= 1
+    print(f"Compressed size: {compressed_size}")
+    print(f"Compression ratio: {ori_size / compressed_size}")
+    # 7. Save original and comporesss representation of the images in txt files
+    huffman_coding_matrix = []
+    for key in huffman_coding_dict:
+        huffman_coding_matrix.append([key, huffman_coding_dict[key]])
+    huffman_coding_matrix.sort(key=cmp_to_key(lambda p1, p2: -1 if p1[0] < p2[0] else 1))
+    np.savetxt("./huffman/huffman_map.txt", huffman_coding_matrix, fmt="%s")
+    np.savetxt("./huffman/huffman_original.txt", ori_img_matrix, fmt="%s")
+    np.savetxt("./huffman/huffman_compressed.txt", encoded_image, fmt="%s")
     return ori_img_matrix
 
-def dfs(huffman_node, encode):
-    if huffman_node is None:
-        # print(f"{huffman_node.value}, {huffman_node.frequency}, {encode}")
-        print(encode)
+def dfs(huffman_node, encode, huffman_coding_dict):
+    if not huffman_node:
         return
-    # if huffman_node.left is None and huffman_node.right is None:
-    #     print(f"{huffman_node.value}, {huffman_node.frequency}, {encode}")
-    #     return
-    dfs(huffman_node.left, encode + '0')
-    dfs(huffman_node.right, encode + '1')
+    if huffman_node.left is None and huffman_node.right is None:
+        # huffman_coding_dict.append([huffman_node.value, encode])
+        huffman_coding_dict[huffman_node.value] = encode
+    dfs(huffman_node.left, encode + '0', huffman_coding_dict)
+    dfs(huffman_node.right, encode + '1', huffman_coding_dict)
 
 class HuffmanNode:
 
@@ -469,9 +500,6 @@ class HuffmanNode:
         self.value = value
         self.left = None
         self.right = None
-    
-    # def __init__(self, frequency):
-    #     self.frequency = frequency
     
     def add_left(self, child):
         self.left = child
