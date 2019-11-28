@@ -2,6 +2,7 @@ import sys
 import math
 import numpy as np
 import time
+from functools import cmp_to_key
 
 '''
 Resizing algorithms
@@ -417,21 +418,66 @@ def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
 
 
 def variable_length_huffman_coding(ori_img_matrix):
-    img_matrix = ori_img_matrix.copy()
+    # img_matrix = ori_img_matrix.copy()
+    # print(img_matrix)
     print("Huffman coding")
     # get probability
+    frequency_array = [0] * 256
+    for i in range(len(ori_img_matrix)):
+        for j in range(len(ori_img_matrix[i])):
+            frequency_array[ori_img_matrix[i][j]] += 1
+    # Create nodes
+    node_array = []
+    for i in range(len(frequency_array)):
+        node_array.append(HuffmanNode(frequency_array[i], i))
+    node_array.sort(key=cmp_to_key(lambda node1, node2: -1 if node1.frequency < node2.frequency else 1))
+    # Create huffman tree
+    while (len(node_array) != 1):
+        smallest1 = node_array.pop(0)
+        smallest2 = node_array.pop(0)
+        new_node = HuffmanNode(smallest1.frequency + smallest2.frequency, -1)
+        new_node.add_left(smallest1)
+        new_node.add_left(smallest2)
+        node_array.append(new_node)
+        node_array.sort(key=cmp_to_key(lambda node1, node2: -1 if node1.frequency < node2.frequency else 1))
+    # print(node_array[0].frequency, node_array[0].value)
+    # DFS the parent node to find specific code
+    dfs(node_array[0], '')
     # figure out the target code
     # convert original image to compressed data
-    value_counter = [0] * 256
-    for row in range(len(ori_img_matrix)):
-        for col in range(len(ori_img_matrix[row])):
-            value_counter[ori_img_matrix[row][col]] += 1
     compressed_representation = [0] * 256
     # change [] to [value, counter]
     # sorted [] is [posiblity, [values]]
     # compressed_representation
-    print(value_counter)
-    return img_matrix
+    return ori_img_matrix
+
+def dfs(huffman_node, encode):
+    if huffman_node is None:
+        # print(f"{huffman_node.value}, {huffman_node.frequency}, {encode}")
+        print(encode)
+        return
+    # if huffman_node.left is None and huffman_node.right is None:
+    #     print(f"{huffman_node.value}, {huffman_node.frequency}, {encode}")
+    #     return
+    dfs(huffman_node.left, encode + '0')
+    dfs(huffman_node.right, encode + '1')
+
+class HuffmanNode:
+
+    def __init__(self, frequency, value):
+        self.frequency = frequency
+        self.value = value
+        self.left = None
+        self.right = None
+    
+    # def __init__(self, frequency):
+    #     self.frequency = frequency
+    
+    def add_left(self, child):
+        self.left = child
+    
+    def add_right(self, child):
+        self.right = child
 
 def lzw(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
