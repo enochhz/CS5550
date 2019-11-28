@@ -494,7 +494,6 @@ def dfs(huffman_node, encode, huffman_coding_dict):
     dfs(huffman_node.right, encode + '1', huffman_coding_dict)
 
 class HuffmanNode:
-
     def __init__(self, frequency, value):
         self.frequency = frequency
         self.value = value
@@ -509,6 +508,35 @@ class HuffmanNode:
 
 def lzw(ori_img_matrix):
     img_matrix = ori_img_matrix.copy()
+    col_length = len(ori_img_matrix[0])
+    total_length = len(ori_img_matrix) * len(ori_img_matrix[0])
     print("lzw")
-    # TODO
+    # 1. Build the original dictionary
+    encoding_dictionary = {}
+    compressed_data = []
+    next_value = 256
+    # 2. Iterate the image and build the dictionary
+    start_time = time.time()
+    valid_start_index = 0
+    valid_end_index = 0
+    while valid_end_index < total_length:
+        next_start_index = valid_end_index
+        next_end_index = next_start_index
+        valid_array = []
+        new_array = []
+        for i in range(next_start_index, next_end_index):
+            valid_array.append(ori_img_matrix[i / col_length][i % col_length])
+            new_array.append(ori_img_matrix[i / col_length][i % col_length])
+        compressed_data.append(encoding_dictionary[valid_array])
+        encoding_dictionary[new_array] = next_value
+        next_value += 1
+    end_time = time.time()
+    # 3. Time and Size Analysis
+    print(f"Time used: {end_time - start_time}")
+    ori_size = sys.size_of(ori_img_matrix)
+    compressed_size = sys.size_of(compressed_data)
+    print(f"Compressed size: {compressed_size}")
+    print(f"Compression ratio: {ori_size / compressed_size}")
+    # 4. Save compressed data
+    np.savetxt("./lzw/lzw_compressed.txt", compressed_data, fmt="%s")
     return img_matrix
