@@ -375,10 +375,13 @@ def run_length_coding_on_grayscale_values(ori_img_matrix):
     compressed_data = compressed_data.astype(np.uint8)
     print("Compressed data: ", compressed_data)
     print("Compression time(RLC on Grayscale)", end_time - start_time)
-    print("Size of original data: ", sys.getsizeof(ori_img_matrix))
-    print("Size of compressed data: ", sys.getsizeof(compressed_data))
-    np.savetxt("ori_rlc_gray.txt", compressed_data, fmt="%s")
-    np.savetxt("compressed_rlc_gray.txt", ori_img_matrix, fmt="%s")
+    ori_size = sys.getsizeof(ori_img_matrix)
+    print("Size of original data: ", ori_size)
+    compressed_size = sys.getsizeof(compressed_data)
+    print("Size of compressed data: ", compressed_size)
+    print(f"Compression ratio: {ori_size / compressed_size}")
+    np.savetxt("./run_length/ori_rlc_gray.txt", compressed_data, fmt="%s")
+    np.savetxt("./run_length/compressed_rlc_gray.txt", ori_img_matrix, fmt="%s")
     return ori_img_matrix
 
 def run_length_coding_on_bit_planes(ori_img_matrix):
@@ -395,10 +398,14 @@ def run_length_coding_on_bit_planes(ori_img_matrix):
     bit_panel_calculation(img_matrix, [], compressed_data)
     bit_panel_calculation(img_matrix, [], compressed_data)
     end_time = time.time()
-    np.savetxt("compressed_rlc_bit.txt", compressed_data, fmt="%s")
     print("Compression time(RLC on Bitpanel)", end_time - start_time)
     print("Size of original data: ", sys.getsizeof(ori_img_matrix))
     print("Size of compressed data: ", sys.getsizeof(compressed_data))
+    ori_size = sys.getsizeof(ori_img_matrix)
+    compressed_size = sys.getsizeof(compressed_data)
+    print(f"Compression ratio: {ori_size / compressed_size}")
+    np.savetxt("./run_length/ori_rlc_bit.txt", ori_img_matrix, fmt="%s")
+    np.savetxt("./run_length/compressed_rlc_bit.txt", compressed_data, fmt="%s")
     return ori_img_matrix
 
 def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
@@ -415,7 +422,6 @@ def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
             img_matrix[row][col] >>= 1
     bit_panel.append(counter)
     compressed_data.append(bit_panel)
-
 
 def variable_length_huffman_coding(ori_img_matrix):
     start_time = time.time()
