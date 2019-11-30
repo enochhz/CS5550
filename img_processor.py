@@ -488,12 +488,12 @@ def dfs(huffman_node, encode, huffman_coding_dict):
     if not huffman_node:
         return
     if huffman_node.left is None and huffman_node.right is None:
-        # huffman_coding_dict.append([huffman_node.value, encode])
         huffman_coding_dict[huffman_node.value] = encode
     dfs(huffman_node.left, encode + '0', huffman_coding_dict)
     dfs(huffman_node.right, encode + '1', huffman_coding_dict)
 
 class HuffmanNode:
+
     def __init__(self, frequency, value):
         self.frequency = frequency
         self.value = value
@@ -507,36 +507,48 @@ class HuffmanNode:
         self.right = child
 
 def lzw(ori_img_matrix):
-    img_matrix = ori_img_matrix.copy()
     col_length = len(ori_img_matrix[0])
     total_length = len(ori_img_matrix) * len(ori_img_matrix[0])
-    print("lzw")
     # 1. Build the original dictionary
     encoding_dictionary = {}
-    compressed_data = []
+    for i in range(256):
+        new_list = []
+        new_list.append(i)
+        new_key = tuple(new_list)
+        encoding_dictionary[new_key] = i
     next_value = 256
+    compressed_data = []
     # 2. Iterate the image and build the dictionary
     start_time = time.time()
     valid_start_index = 0
-    valid_end_index = 0
-    while valid_end_index < total_length:
-        next_start_index = valid_end_index
-        next_end_index = next_start_index
-        valid_array = []
-        new_array = []
-        for i in range(next_start_index, next_end_index):
-            valid_array.append(ori_img_matrix[i / col_length][i % col_length])
-            new_array.append(ori_img_matrix[i / col_length][i % col_length])
-        compressed_data.append(encoding_dictionary[valid_array])
-        encoding_dictionary[new_array] = next_value
-        next_value += 1
+    while valid_start_index < total_length:
+        key_array = []
+        key_array.append(ori_img_matrix[int(valid_start_index / col_length)][valid_start_index % col_length])
+        while tuple(key_array) in encoding_dictionary and valid_start_index != total_length - 1:
+            valid_start_index += 1
+            key_array.append(ori_img_matrix[int(valid_start_index / col_length)][valid_start_index % col_length])
+        if tuple(key_array) not in encoding_dictionary:
+            new_key = tuple(key_array)
+            encoding_dictionary[new_key] = next_value 
+            last_key = list(new_key)
+            del last_key[-1]
+            compressed_data.append(encoding_dictionary[tuple(last_key)])
+            next_value += 1
+        elif valid_start_index == total_length - 1:
+            compressed_data.append(encoding_dictionary[tuple(key_array)])
+            valid_start_index += 1
     end_time = time.time()
+    print(encoding_dictionary)
     # 3. Time and Size Analysis
+    print(f"compressed data: {compressed_data}")
     print(f"Time used: {end_time - start_time}")
-    ori_size = sys.size_of(ori_img_matrix)
-    compressed_size = sys.size_of(compressed_data)
-    print(f"Compressed size: {compressed_size}")
-    print(f"Compression ratio: {ori_size / compressed_size}")
+    print(f"Original length: {total_length}")
+    print(f"Compressed length: {len(compressed_data)}")
+    print(f"Compression ratio: {total_length / len(compressed_data)}")
     # 4. Save compressed data
+    encoding_matrix = []
+    for key in encoding_dictionary:
+        encoding_matrix.append([list(key), encoding_dictionary[key]])
+    np.savetxt("./lzw/lzw_encoding_dictionary.txt", encoding_matrix, fmt="%s")
     np.savetxt("./lzw/lzw_compressed.txt", compressed_data, fmt="%s")
-    return img_matrix
+    return ori_img_matrix
