@@ -380,47 +380,49 @@ def run_length_coding_on_grayscale_values(ori_img_matrix):
     compressed_size = sys.getsizeof(compressed_data)
     print("Size of compressed data: ", compressed_size)
     print(f"Compression ratio: {ori_size / compressed_size}")
-    np.savetxt("./run_length/ori_rlc_gray.txt", compressed_data, fmt="%s")
-    np.savetxt("./run_length/compressed_rlc_gray.txt", ori_img_matrix, fmt="%s")
+    np.savetxt("./run_length/ori_rlc_gray.txt", ori_img_matrix, fmt="%s")
+    np.savetxt("./run_length/compressed_rlc_gray.txt", compressed_data, fmt="%s")
     return ori_img_matrix
 
-def run_length_coding_on_bit_planes(ori_img_matrix):
-    img_matrix = ori_img_matrix.copy()
-    print("run length bit planes")
+def run_length_coding_on_bit_planes(img_matrix):
     start_time = time.time()
     compressed_data = []
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
-    bit_panel_calculation(img_matrix, [], compressed_data)
+    bit_panel_calculation(img_matrix, [], 0, compressed_data)
+    bit_panel_calculation(img_matrix, [], 1, compressed_data)
+    bit_panel_calculation(img_matrix, [], 2, compressed_data)
+    bit_panel_calculation(img_matrix, [], 3, compressed_data)
+    bit_panel_calculation(img_matrix, [], 4, compressed_data)
+    bit_panel_calculation(img_matrix, [], 5, compressed_data)
+    bit_panel_calculation(img_matrix, [], 6, compressed_data)
+    bit_panel_calculation(img_matrix, [], 7, compressed_data)
     end_time = time.time()
     print("Compression time(RLC on Bitpanel)", end_time - start_time)
-    print("Size of original data: ", sys.getsizeof(ori_img_matrix))
+    print("Size of original data: ", sys.getsizeof(img_matrix))
     print("Size of compressed data: ", sys.getsizeof(compressed_data))
-    ori_size = sys.getsizeof(ori_img_matrix)
+    ori_size = sys.getsizeof(img_matrix)
     compressed_size = sys.getsizeof(compressed_data)
     print(f"Compression ratio: {ori_size / compressed_size}")
-    np.savetxt("./run_length/ori_rlc_bit.txt", ori_img_matrix, fmt="%s")
+    np.savetxt("./run_length/ori_rlc_bit.txt", img_matrix, fmt="%s")
     np.savetxt("./run_length/compressed_rlc_bit.txt", compressed_data, fmt="%s")
-    return ori_img_matrix
+    return img_matrix
 
-def bit_panel_calculation(img_matrix, bit_panel, compressed_data):
+def bit_panel_calculation(img_matrix, bit_panel, bit_index, compressed_data):
     target = 0
     counter = 0
     for row in range(len(img_matrix)):
         for col in range(len(img_matrix[row])):
-            if (img_matrix[row][col] & target != 1):
+            cur_value = img_matrix[row][col]
+            for i in range(bit_index):
+                cur_value >>= 1
+            if row == len(img_matrix) - 1 and col == len(img_matrix[row]) - 1:
+                bit_panel.append(counter)
+                break
+            if ((cur_value & target) != 1):
                 bit_panel.append(counter)
                 target ^= 1
-                counter = 0
+                counter = 1
             else:
                 counter += 1
-            img_matrix[row][col] >>= 1
-    bit_panel.append(counter)
     compressed_data.append(bit_panel)
 
 def variable_length_huffman_coding(ori_img_matrix):
@@ -454,10 +456,14 @@ def variable_length_huffman_coding(ori_img_matrix):
         huffman_coding_dict[key] = string_number
     print(huffman_coding_dict)
     # 4. Convert original image using the encoding table
-    encoded_image = ori_img_matrix.copy()
-    for row in range(len(encoded_image)):
-        for col in range(len(encoded_image[0])):
-            encoded_image[row][col] = huffman_coding_dict[encoded_image[row][col]]
+    # encoded_image = ori_img_matrix.copy()
+    encoded_image = []
+    for row in range(len(ori_img_matrix)):
+        new_row = []
+        for col in range(len(ori_img_matrix[0])):
+            # encoded_image[row][col] = huffman_coding_dict[ori_img_matrix[row][col]]
+            new_row.append(huffman_coding_dict[ori_img_matrix[row][col]])
+        encoded_image.append(new_row)
     end_time = time.time()
     print(ori_img_matrix)
     print(encoded_image)
@@ -555,6 +561,7 @@ def lzw(ori_img_matrix):
     encoding_matrix = []
     for key in encoding_dictionary:
         encoding_matrix.append([list(key), encoding_dictionary[key]])
+    np.savetxt("./lzw/original_data.txt", ori_img_matrix.flatten(), fmt="%s")
     np.savetxt("./lzw/lzw_encoding_dictionary.txt", encoding_matrix, fmt="%s")
     np.savetxt("./lzw/lzw_compressed.txt", compressed_data, fmt="%s")
     return ori_img_matrix
